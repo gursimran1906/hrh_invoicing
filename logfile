@@ -3096,3 +3096,27 @@
 	;
 2024-03-10 14:43:36.251 GMT [9151] ERROR:  relation "backend_room" does not exist at character 61
 2024-03-10 14:43:36.251 GMT [9151] STATEMENT:  SELECT "backend_room"."id", "backend_room"."is_shared" FROM "backend_room" WHERE ("backend_room"."id" = 1 AND "backend_room"."is_shared") LIMIT 21
+2024-03-10 19:30:28.003 GMT [49823] PANIC:  could not open file "/Users/Gursimran1/Desktop/Projects/HRH/wip/postgres/global/pg_control": No such file or directory
+2024-03-10 19:30:28.060 GMT [49821] LOG:  checkpointer process (PID 49823) was terminated by signal 6: Abort trap: 6
+2024-03-10 19:30:28.060 GMT [49821] LOG:  terminating any other active server processes
+2024-03-10 19:30:28.060 GMT [17786] WARNING:  terminating connection because of crash of another server process
+2024-03-10 19:30:28.060 GMT [17786] DETAIL:  The postmaster has commanded this server process to roll back the current transaction and exit, because another server process exited abnormally and possibly corrupted shared memory.
+2024-03-10 19:30:28.060 GMT [17786] HINT:  In a moment you should be able to reconnect to the database and repeat your command.
+2024-03-10 19:30:28.060 GMT [17517] WARNING:  terminating connection because of crash of another server process
+2024-03-10 19:30:28.060 GMT [17517] DETAIL:  The postmaster has commanded this server process to roll back the current transaction and exit, because another server process exited abnormally and possibly corrupted shared memory.
+2024-03-10 19:30:28.060 GMT [17517] HINT:  In a moment you should be able to reconnect to the database and repeat your command.
+2024-03-10 19:30:28.060 GMT [17516] WARNING:  terminating connection because of crash of another server process
+2024-03-10 19:30:28.060 GMT [17516] DETAIL:  The postmaster has commanded this server process to roll back the current transaction and exit, because another server process exited abnormally and possibly corrupted shared memory.
+2024-03-10 19:30:28.060 GMT [17516] HINT:  In a moment you should be able to reconnect to the database and repeat your command.
+2024-03-10 19:30:28.060 GMT [11717] WARNING:  terminating connection because of crash of another server process
+2024-03-10 19:30:28.060 GMT [11717] DETAIL:  The postmaster has commanded this server process to roll back the current transaction and exit, because another server process exited abnormally and possibly corrupted shared memory.
+2024-03-10 19:30:28.060 GMT [11717] HINT:  In a moment you should be able to reconnect to the database and repeat your command.
+2024-03-10 19:30:28.060 GMT [49826] WARNING:  terminating connection because of crash of another server process
+2024-03-10 19:30:28.060 GMT [49826] DETAIL:  The postmaster has commanded this server process to roll back the current transaction and exit, because another server process exited abnormally and possibly corrupted shared memory.
+2024-03-10 19:30:28.060 GMT [49826] HINT:  In a moment you should be able to reconnect to the database and repeat your command.
+2024-03-10 19:30:28.060 GMT [17041] WARNING:  terminating connection because of crash of another server process
+2024-03-10 19:30:28.060 GMT [17041] DETAIL:  The postmaster has commanded this server process to roll back the current transaction and exit, because another server process exited abnormally and possibly corrupted shared memory.
+2024-03-10 19:30:28.060 GMT [17041] HINT:  In a moment you should be able to reconnect to the database and repeat your command.
+2024-03-10 19:30:28.066 GMT [49821] LOG:  all server processes terminated; reinitializing
+2024-03-10 19:30:28.067 GMT [49821] FATAL:  could not stat data directory "/Users/Gursimran1/Desktop/Projects/HRH/wip/postgres": No such file or directory
+2024-03-10 19:30:28.068 GMT [49821] LOG:  database system is shut down
