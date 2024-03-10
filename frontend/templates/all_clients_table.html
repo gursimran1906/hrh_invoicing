@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}All Clients{% endblock %}
+
+{% block container %}
+
+<div class="table-responsive">
+    <div>
+    <a class='btn btn-primary float-end m-2' href="{% url 'download_current_clients'%}">Dowload Current Clients</a>
+    <a class='btn btn-primary float-end m-2' href="{% url 'download_all_clients'%}">Dowload all Clients</a>
+    <h2 class='text-center m-2'>All Clients</h2>
+    </div>
+    <table class='table table-striped '>
+        <thead>
+            <tr>
+                {% for key in clients.0.keys %}
+                    {% if key != 'id' %}
+                        <th>{{ key|capfirst }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in clients %}
+                <tr>
+                    {% for key, value in obj.items %}
+                        {% if key != 'id' %}
+                            {% if value|date %}
+                                <td>{{ value|date:"d-m-Y" }}</td>
+                            {% else %}
+                                <td>{{ value }}</td>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+        {% endblock %}

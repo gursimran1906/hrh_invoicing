@@ -1,0 +1,84 @@
+{% extends 'base.html' %} {% block title %}Attendance{% endblock %} 
+{% block container %}
+<h2 class='text-center mb-3'>Mark Client's Attendance</h2>
+
+{% if days_of_month %}
+
+<div>
+    <a href="{% url 'generate_monthly_attendance_table' month_year=selected_month_year %}" class="btn btn-primary float-end m-2 mt-4">Download Monthly table</a>    
+</div>
+<div>
+    <a href="{% url 'generate_monthly_attendance_chart' month_year=selected_month_year %}" class="btn btn-primary float-end m-2 ml-0 mt-4">Download Bed Occupation Chart</a>    
+</div>
+{% endif %}
+<div class='w-50 mb-3'>
+    <form method="post" action="{% url 'clients_attendance' %}" >
+        {% csrf_token %}
+
+        <div class="form-group row">
+            <div class='col-md-4'>
+                 <label for="monthPicker" class="">Select Month and Year:</label>
+        
+                <input
+                    type="month"
+                    class="form-control "
+                    id="monthPicker"
+                    name="month_year"
+                    value="{{ selected_month_year }}"
+                    required
+                />
+            </div>
+            <div class='col-md-3'>
+        
+                 <button type="submit" class="mt-4 btn btn-primary">Search</button>
+
+             </div>
+        
+        </div>
+    </form>
+</div>
+
+
+
+
+{% if days_of_month %}
+<form method="post" action="{% url 'mark_clients_attendance' %}" >
+    {% csrf_token %}
+<div class='table-responsive '>
+  <table class="table table-striped">
+    <thead>
+        <th>
+            Client Name
+        </th>
+      {% for day in days_of_month %}
+      <th>{{day|date:"d/m/Y"}}</th>
+      {% endfor %}
+    </thead>
+    <tbody>
+        
+        {% for client in clients %}
+        <tr data-toggle="tooltip" data-placement="top" title="{{client.name}}">
+            <td>
+                {{ client.name }}
+            </td>
+            {% for day, present in client.attendance.items %}
+            <td>
+                <input name='{{client.id}}/{{day}}' class='form-check-input' type='checkbox' {% if present == True %}checked{% endif %}></input>
+                
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+       
+    </tbody>
+    
+  </table>
+</div>
+<button type="submit" class="fixed float-end btn btn-primary">Mark Attendance</button>
+        
+</form>
+
+</div>
+{% endif %} 
+
+{% endblock %}

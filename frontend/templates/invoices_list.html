@@ -1,0 +1,246 @@
+{% extends 'base.html' %} {% block title %}Invoices List{% endblock %} 
+{% block styles %}
+<style>
+    #invoicesTable thead th.asc::after {
+        content: ' ▲';
+
+        color: #000;
+        margin-left: 1px;
+    }
+
+    #invoicesTable thead th.desc::after {
+        content: ' ▼';
+
+        color: #000;
+        margin-left: 1px;
+    }
+</style>
+{% endblock %}
+{% block container %}
+<script>
+  $(document).ready(function () {
+    // Initialize DataTables with sorting and filtering
+    var table = $("#invoicesTable").DataTable({
+      ordering: true,
+      responsive: true,
+      searching: true,
+      lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, "All"],
+      ],
+      pageLength: 10,
+    });
+
+    function updateTotals() {
+      var selectedRows = table.rows(".selected").data();
+      var totalCosts = 0;
+      
+
+      // Calculate totals from selected rows
+      for (var i = 0; i < selectedRows.length; i++) {
+        totalCosts += parseFloat(
+          selectedRows[i][6].replace("£", "").replace(",", "")
+        );
+        
+      }
+
+      // Update the totals in the fixed box
+      $("#totalCosts").text(
+        "£" + totalCosts.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+      );
+      
+    }
+    $("#invoicesTable tbody").on("click", "tr", function () {
+      $(this).toggleClass("selected");
+      updateTotals();
+    });
+
+    table.on("draw", function () {
+      
+
+      var visibleRows = table
+        .rows({
+          page: "current",
+        })
+        .indexes();
+
+      table.rows().every(function (rowIdx) {
+        var rowNode = this.node();
+        var isVisible = visibleRows.indexOf(rowIdx) !== -1;
+        console.log(rowIdx, visibleRows.indexOf(rowIdx));
+        if (isVisible) {
+          $(rowNode).addClass("selected");
+        } else {
+          $(rowNode).removeClass("selected");
+        }
+      });
+      updateTotals();
+    });
+
+    $("#invoicesTable tfoot th").each(function () {
+      var title = $(this).text();
+      $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+    });
+
+    table.columns().every(function () {
+      var that = this;
+      $("input", this.footer()).on("keyup change", function () {
+        if (that.search() !== this.value) {
+          that.search(this.value).draw();
+        }
+      });
+    });
+
+    $("#invoicesTable th").hover(
+      function () {
+        $(this).css("cursor", "pointer");
+      },
+      function () {
+        $(this).css("cursor", "auto");
+      }
+    );
+
+    $("#invoicesTable tr").hover(
+      function () {
+        $(this).css("cursor", "pointer");
+      },
+      function () {
+        $(this).css("cursor", "auto");
+      }
+    );
+    
+
+    table.on("order.dt", function () {
+      $("#invoicesTable thead th").each(function () {
+        $(this).removeClass("asc desc");
+      });
+
+      var order = table.order();
+      if (order.length) {
+        var th = $("#invoicesTable thead th:eq(" + order[0][0] + ")");
+        th.addClass(order[0][1]);
+      }
+    });
+  });
+</script>
+
+<div class='w-50 mb-3'>
+  <form method="post" action="{% url 'generate_monthly_invoices' %}" >
+      {% csrf_token %}
+
+      <div class="form-group row">
+          <div class='col-md-3'>
+               {% comment %} <label for="monthPicker" class="">Select Month and Year:</label> {% endcomment %}
+              <input
+                  type="month"
+                  class="form-control "
+                  id="monthPicker"
+                  name="month_year"
+                  value="{{ selected_month_year }}"
+                  required
+              />
+          </div>
+          <div class='col-md-3'>
+               <button type="submit" class="btn btn-primary">Generate Invoices</button>
+           </div>
+          </form>
+      </div>
+      <form method="post" action="{% url 'send_monthly_invoices' %}" >
+        {% csrf_token %}
+  
+      <div class="form-group row mt-2">
+        <div class='col-md-3'>
+             {% comment %} <label for="monthPicker" class="">Select Month and Year (to send invoices):</label> {% endcomment %}
+            <input
+                type="month"
+                class="form-control "
+                id="monthPicker"
+                name="month_year"
+                value="{{ selected_month_year }}"
+                required
+            />
+        </div>
+        <div class='col-md-3'>
+             <button type="submit" class="btn btn-primary">Send Invoices</button>
+         </div>
+        </form>
+    </div>
+  
+</div>
+<div class="row justify-content-end">
+    <div class="col-lg-4 mt-3">
+      <table class="table table-striped shadow-lg ">
+        <thead>
+          <tr>
+            <th colspan="2" class="text-center">Selected Rows Totals</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Total Costs:</th>
+            <td><span class="inline" id="totalCosts">£0.00</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<div class="table-responsive">
+  <table class="table table-striped" style='width:100%;%' id="invoicesTable">
+    <thead>
+        <tr>
+          <th>Invoice Number</th>
+          <th>Client</th>
+          <th>Sent by Email</th>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Units</th>
+          <th>Costs</th>
+          <th>Notes</th>
+          <th>Settled</th>
+          <th>Amount Allocated</th>
+          <th>Edit</th>
+          <th>Download Invoice</th>
+          <th>Created on</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <th>Invoice Number</th>
+          <th>Client</th>
+          <th>Sent by Email</th>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Units</th>
+          <th>Costs</th>
+          <th>Notes</th>
+          <th>Settled</th>
+          <th>Amount Allocated</th>
+          <th>Edit</th>
+          <th>Download Invoice</th>
+          <th>Created On</th>
+        </tr>
+      </tfoot>
+   
+    <tbody>
+      {% for invoice in invoices %}
+      <tr>
+        <td>{{ invoice.invoice_number }}</td>
+        <td>{{ invoice.client }}</td>
+        <td>{{ invoice.sent_to_client }}</td>
+        <td>{{ invoice.date|date:"d/m/Y"|default:'-'}}</td>
+        <td>{{ invoice.desc }}</td>
+        <td>{{ invoice.units }}</td>
+        <td>{{ invoice.costs }}</td>
+        <td>{{ invoice.additional_notes }}</td>
+        <td>{{ invoice.settled }}</td>
+        <td>{{ invoice.amount_allocated|default:'-' }}</td>
+        <td><a href="{% url 'edit_invoice' invoice.invoice_number %}">Edit</a></td>
+        <td><a href="{% url 'download_invoice' invoice.invoice_number %}">Download</a></td>
+        <td>{{ invoice.timestamp }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

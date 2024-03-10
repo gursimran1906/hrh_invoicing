@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | {{ client.name }}{% endblock %}
+
+{% block container %}
+  
+  <div class='row'>
+    <h2 class='col-md-6 mt-3'>{{ client.name }}</h2>
+    <div class='col-md-3'>
+            <table class="table">
+            <thead>
+                <tr>
+                <th>
+                    Total Invoices
+                </th>
+                <th>
+                    Monies In
+                </th>
+                <th>
+                    Net Balance
+                </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-light">
+                <td>
+                    {{total_invoices}}
+                </td>
+                <td>
+                    {{total_monies_in}}
+                </td>
+
+                {% if client_balance < 0 %}<td class='text-danger'>
+                {% else %}<td class='text-success'>
+                    {% endif %}
+                    {{client_balance}}
+                </td>
+                </tr>
+            </tbody>
+            </table>
+    </div>
+    
+  </div>
+ 
+  <div class="row ">
+    <div class="col-md-6 ">
+        <a class='btn btn-primary' href="{% url 'edit_client' client.id %}">Edit Client</a>
+
+        <button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse" data-bs-target="#Invoices" aria-expanded="true" aria-controls="Invoices">
+            Invoices
+        </button>
+        <button class="btn btn-primary m-1" type="button" data-bs-toggle="collapse" data-bs-target="#MoneyIn" aria-expanded="false" aria-controls="Money In">
+            Monies In
+        </button>
+      <div class="card mt-4 alert alert-danger  shadow border-0 ">
+        <div class="card-body row">
+            <div class='col'>
+                <h5 class="card-title">Basic Information</h5>
+
+                    <p class="card-text"><strong>ID:</strong><td>{{ client.id }}</td></p>
+                    <p class="card-text"><strong>Allotted Room:</strong> {{ client.allotted_room }}</p>
+                    <p class="card-text"><strong>Address:</strong> {{ client.address }}</p>
+                    <p class="card-text"><strong>Contact Number:</strong> {{ client.contact_number }}</p>
+                    <p class="card-text"><strong>Email:</strong> {{ client.email }}</p>
+                    <p class="card-text"><strong>Date Joined:</strong> {{ client.date_joined }}</p>
+                    {% if client.date_left %}
+                        <p class="card-text"><strong>Date Left:</strong> {{ client.date_left }}</p>
+                    {% endif %}
+                    <p class="card-text"><strong>Resident Name/Number:</strong> {{ client.resident_name_number }}</p>
+                    <p class="card-text"><strong>Respite:</strong> {% if client.respite %}Yes{% else %}No{% endif %}</p>
+                    {% if client.notes %}
+                        <p class="card-text"><strong>Notes:</strong> {{ client.notes }}</p>
+                    {% endif %}
+                </table>
+            </div>
+            <div class='col'>
+              <h5 class="card-title">Financial Information</h5>
+              <p class="card-text"><strong>Client Type:</strong> {{ client.get_client_types_display }}</p>
+              <p class="card-text"><strong>Client Agreed Rate:</strong> {{ client.client_agreed_rate }}</p>
+              <p class="card-text"><strong>Payable By:</strong> {{ client.payable_by }}</p>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mt-5">
+      
+      <div class="collapse collapse-vertical" id="MoneyIn" aria-expanded="true">
+            <div class="card mt-4 shadow border-0" style = "background-color:lightblue !important;" >
+                <div class="card-body">
+                <h5 class="card-title">Money In</h5>
+                {% for money_in in client.moneyin_set.all %}
+                    <p class="card-text"><strong>Payment Type:</strong> {{ money_in.payment_type }}</p>
+                    <p class="card-text"><strong>Amount:</strong> {{ money_in.amount }}</p>
+                    <p class="card-text"><strong>Balance Left:</strong> {{ money_in.balance_left }}</p>
+                    <p class="card-text"><strong>Date:</strong> {{ money_in.date }}</p>
+                    <a class='btn btn-primary' href="{% url 'edit_money_in' money_in.id %}">Edit</a>
+                    <hr />
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="collapse collapse-vertical" id="Invoices" aria-expanded="true">
+            <div class="card mt-4  shadow border-0" style = "background-color:#F9EBDF !important;" >
+                <div class="card-body">
+                <h5 class="card-title">Invoices</h5>
+                {% for invoice in client.invoice_set.all %}
+                    <p class="card-text"><strong>Invoice Number:</strong> {{ invoice.invoice_number }}</p>
+                    <p class="card-text"><strong>Date:</strong> {{ invoice.date }}</p>
+                    <p class="card-text"><strong>Description:</strong> {{ invoice.desc }}</p>
+                    <p class="card-text"><strong>Costs:</strong> {{ invoice.costs }}</p>
+                    <p class="card-text"><strong>Units:</strong> {{ invoice.units }}</p>
+                    <p class="card-text"><strong>Settled:</strong> {% if invoice.settled %}Yes{% else %}No{% endif %}</p>
+                    <a class='btn btn-primary' href="{% url 'edit_invoice' invoice.invoice_number %}" target="_blank">Edit</a>
+
+                    <a class='btn btn-primary' href="{% url 'download_invoice' invoice.invoice_number %}">Download</a>
+                    <hr />
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+
+{% endblock %}

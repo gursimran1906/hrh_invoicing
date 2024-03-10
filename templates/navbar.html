@@ -1,0 +1,46 @@
+{% load static %}
+<div>
+  <nav class="d-flex flex-row bg-light container-fluid">
+    <div class='h-75'>
+      <a class="p-2 " style="background-color: transparent !important" href="{% url 'index_dashboard' %}">
+        <!-- Replace the h1 tag with the img tag for the logo -->
+        <img src="{% static 'images/hrh_logo.png' %}" alt="Hollywood Rest Home Logo" class="logo" style="width: 100px; height: auto;">
+      </a>
+  </div>
+    <div class="d-flex justify-content-end highlight m-4">
+      <!-- Add the responsive dropdown button -->
+      <div class="dropdown d-lg-none m-2 float-end">
+        <a class="btn btn-primary rounded-5 dropdown-toggle  " href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <a class="dropdown-item" href="{% url 'add_client' %}">Add Client</a>
+          <a class="dropdown-item" href="{% url 'add_rate' %}">Add Rate</a>
+          <a class="dropdown-item" href="{% url 'add_local_authority' %}">Add Local Authority</a>
+          {% if user.is_invoice_department %}
+            <a class="dropdown-item" href="{% url 'download_accountants_invoices_csv' %}" role="button">Accountant's Info</a>
+          {% endif %}
+          {% if user %}
+            <a class="dropdown-item" href="{% url 'logout' %}" role="button">Logout</a>
+          {% endif %}
+
+          <!-- Add more dropdown items as needed -->
+        </div>
+      </div>
+
+      <!-- Add the navigation links for larger screens -->
+      <div class="d-none d-lg-flex ">
+        <a class="btn btn-primary  m-2 " href="{% url 'add_client' %}">Add Client</a>
+       
+        <a class="btn btn-primary   m-2 " href="{% url 'add_rate' %}">Add Rate</a>
+        <a class="btn btn-primary  m-2 " href="{% url 'add_local_authority' %}">Add Local Authority</a>
+        {% if user.is_invoice_department %}
+          <a class="btn btn-primary  m-2 " href="{% url 'download_accountants_invoices_csv' %}">Accountant's Info</a>
+        {% endif %}
+        {% if user %}
+          <a class="btn btn-primary  m-2 " href="{% url 'logout' %}" role="button">Logout</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+</div>

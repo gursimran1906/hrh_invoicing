@@ -1,0 +1,294 @@
+{% extends 'base.html' %} {% block title %}Dashboard{% endblock %} 
+{% block container %}
+<div class='row'>
+    
+    <div class='col-md-4 bg-success-subtle shadow p-2 rounded-4 m-3'>
+        <h3 class='text-center'>{% now "F" %} Bed Occupancy</h3>
+        <canvas id="chart"></canvas>
+        <div class='d-flex justify-content-center mt-4 mb-2'>
+        <a href="{% url 'clients_attendance' %}" class="btn text-white m-2 " style="background-color: rgb(0, 138, 139) !important;">Mark Attendance</a>
+        <a href="{% url 'all_clients_view' %}" class="btn text-white m-2 " style="background-color: rgb(0, 138, 139) !important;">All Clients</a>
+    </div>
+    </div>
+    {% if user.is_invoice_department %}
+    <div class='col-md-3 m-3 p-2 bg-success-subtle rounded-4 shadow '>
+        <h3 class='text-center'>Revenue</h3>
+        <canvas id="revenue_chart"></canvas>
+        <div class='d-flex justify-content-center mt-4 mb-2'>
+            <a href="{% url 'monies_in' %}" class="btn text-white m-2" style="background-color: rgb(0, 138, 139) !important;">Unallocate Funds</a>
+            
+            <a href="{% url 'add_money_in' %}" class="btn text-white m-2" style="background-color: rgb(0, 138, 139) !important;">Add Money In</a>
+        </div>
+    </div>
+    {% endif %}
+   
+    
+    <div class='col-md-4 bg-success-subtle shadow p-2 rounded-4 m-3 '>
+        <h3 class='text-center'>One To Ones</h3>
+        <canvas id="one_to_one_chart"></canvas>
+        <div class='d-flex justify-content-center mt-4 mb-2'>
+        <a href="{% url 'add_one_to_one' %}" class="btn text-white m-2" style="background-color: rgb(0, 138, 139) !important;">Add</a>
+        <a href="{% url 'download_all_one_to_ones' %}" class="btn text-white m-2" style="background-color: rgb(0, 138, 139) !important;">Dowload all</a>
+        <a href="{% url 'download_this_months_one_to_ones' %}" class="btn text-white m-2" style="background-color: rgb(0, 138, 139) !important;">Dowload for this month</a>
+    </div>
+    </div>
+</div>
+{% if user.is_invoice_department %}
+<div class='row'>
+    <div class='col-md-6 m-3 p-2 rounded-4 table-responsive'>
+        <h3 class='text-center'>Unsettled Invoices for more than 1 month</h3>
+        <table class='table table-hover  '>
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Client Name</th>
+                    <th>Date</th>
+                    <th>Costs</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for invoice in unsettled_overdue_invoices %}
+            <tr>
+                <td>
+                    {{invoice.invoice_number}}
+                </td>
+                <td>
+                    {{invoice.client.name}}
+                </td>
+                <td>
+                    {{invoice.date|date:"d-m-Y"}}
+                </td>
+                <td>
+                    £{{invoice.costs}}
+                </td>     
+                <td><a href="{% url 'download_invoice' invoice.invoice_number %}">Download</a></td>
+            <tr>
+        {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class='col-md-3 bg-success-subtle shadow p-2 rounded-4 m-3'>
+        <h3 class='text-center'>Invoices</h3>
+        <canvas class='' id="invoices_chart"></canvas>
+        <div class='d-flex justify-content-center mt-4 mb-2'>
+            <a href="{% url 'invoices_list' %}" class="btn text-white m-2" style="background-color: rgb(0, 138, 139) !important;">Invoices</a>
+            <a href="{% url 'add_credit_note' %}" class="btn text-white m-2" style="background-color: rgb(0, 138, 139) !important;">Add Credit Note</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    // Fetch data from the Django view
+    let invoicesCtx = document.getElementById("invoices_chart").getContext("2d");
+        let invoicesChart = new Chart(invoicesCtx, {
+        type: "doughnut",
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: "Test"
+            }
+        }
+        });
+
+        $(document).ready(function() {
+
+        loadChart(invoicesChart, '/invoices/data/')
+        function loadChart(chart, endpoint) {
+            $.ajax({
+            url: endpoint,
+            type: "GET",
+            dataType: "json",
+            success: (jsonResponse) => {
+
+                console.log(jsonResponse)
+                // Extract data from the response
+                const title = jsonResponse.title;
+                const labels = jsonResponse.data.labels;
+                const datasets = jsonResponse.data.datasets;
+                
+                chart.options.title.display = true;
+                
+                chart.options.title.text = title;
+                
+                chart.data.labels = labels;
+
+                datasets.forEach(dataset => {
+                chart.data.datasets.push(dataset);
+                
+                });
+                chart.update();
+                
+                
+
+            },
+            error: () => console.log("Failed to fetch chart data from " + endpoint + "!")
+            });
+        }
+        });
+
+</script>
+<script>
+    // Fetch data from the Django view
+    let numberOfBedsOccupiedCtx = document.getElementById("chart").getContext("2d");
+        let numberOfBedsOccupiedChart = new Chart(numberOfBedsOccupiedCtx, {
+        type: "line",
+        options: {
+            responsive: true,
+            title: {
+            display: true,
+            text: "Test"
+            }
+        }
+        });
+
+        $(document).ready(function() {
+
+        loadAttendanceChart(numberOfBedsOccupiedChart, '/attendance/data/')
+        function loadAttendanceChart(chart, endpoint) {
+            $.ajax({
+            url: endpoint,
+            type: "GET",
+            dataType: "json",
+            success: (jsonResponse) => {
+
+            
+                // Extract data from the response
+                const title = jsonResponse.title;
+                const labels = jsonResponse.data.labels[0];
+                const datasets = jsonResponse.data.datasets;
+                console.log(datasets)
+                chart.options.title.display = true;
+                
+                chart.options.title.text = title;
+                
+                chart.data.labels = labels;
+
+                datasets.forEach(dataset => {
+                chart.data.datasets.push(dataset);
+                
+                });
+                chart.update();
+                
+                
+
+            },
+            error: () => console.log("Failed to fetch chart data from " + endpoint + "!")
+            });
+        }
+        });
+
+</script>
+<script>
+    // Fetch data from the Django view
+    let oneToOneCtx = document.getElementById("one_to_one_chart").getContext("2d");
+        let oneToOneChart = new Chart(oneToOneCtx, {
+        type: "bar",
+        options: {
+            responsive: true,
+            title: {
+            display: true,
+            text: "Test"
+            }
+        }
+        });
+
+        $(document).ready(function() {
+
+        loadOneToOneChart(oneToOneChart, '/one_to_ones/data/')
+        function loadOneToOneChart(chart, endpoint) {
+            $.ajax({
+            url: endpoint,
+            type: "GET",
+            dataType: "json",
+            success: (jsonResponse) => {
+
+            
+                // Extract data from the response
+                const title = jsonResponse.title;
+                const labels = jsonResponse.data.labels[0];
+                const datasets = jsonResponse.data.datasets;
+                console.log(datasets)
+                chart.options.title.display = true;
+                
+                chart.options.title.text = title;
+                
+                chart.data.labels = labels;
+
+                datasets.forEach(dataset => {
+                chart.data.datasets.push(dataset);
+                
+                });
+                chart.update();
+                
+                
+
+            },
+            error: () => console.log("Failed to fetch chart data from " + endpoint + "!")
+            });
+        }
+        });
+
+</script>
+
+<script>
+    // Fetch data from the Django view
+    let revenueCtx = document.getElementById("revenue_chart").getContext("2d");
+        let revenueChart = new Chart(revenueCtx, {
+        type: "line",
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: "Test"
+            }
+        }
+        });
+
+        $(document).ready(function() {
+
+        loadRevenueChart(revenueChart, '/revenue/data/')
+        function loadRevenueChart(chart, endpoint) {
+            $.ajax({
+            url: endpoint,
+            type: "GET",
+            dataType: "json",
+            success: (jsonResponse) => {
+                
+
+                console.log(jsonResponse)
+                // Extract data from the response
+                const title = jsonResponse.title;
+                const labels = jsonResponse.labels;
+                const datasets = jsonResponse.datasets;
+                
+                chart.options.title.display = true;
+                
+                chart.options.title.text = title;
+                
+                chart.data.labels = labels;
+
+                datasets.forEach(dataset => {
+                chart.data.datasets.push(dataset);
+                
+                });
+                chart.update();
+                
+                
+
+            },
+            error: () => console.log("Failed to fetch chart data from " + endpoint + "!")
+            });
+        }
+        });
+
+</script>
+
+
+    {% endblock %}
+
+
+
+   

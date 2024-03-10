@@ -1,0 +1,66 @@
+{% extends 'base.html' %} {% block title %}Accountant's Info{% endblock %} 
+{% block container %}
+<div class="row mt-5">
+  <div class="col">
+    <h3>Download Invoices CSV</h3>
+
+    <form method="POST" action="{% url 'download_accountants_invoices_csv' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="fromDate">From Date:</label>
+        <input
+          type="date"
+          class="form-control"
+          id="fromDate"
+          name="from_date"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-2">Download CSV</button>
+    </form>
+  </div>
+  <div class='col'>
+    <h3>Download Monies In CSV</h3>
+
+    <form method="POST" action="{% url 'download_accountants_monies_in_csv' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="fromDate">From Date:</label>
+        <input
+          type="date"
+          class="form-control"
+          id="fromDate"
+          name="from_date"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-2">Download CSV</button>
+    </form>
+  </div>
+  <div class='col'>
+    <h3>Download Credit Notes CSV</h3>
+
+    <form method="POST" action="{% url 'download_accountants_credit_notes_csv' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="fromDate">From Date:</label>
+        <input
+          type="date"
+          class="form-control"
+          id="fromDate"
+          name="from_date"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-2">Download CSV</button>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

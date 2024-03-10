@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Allocate Monies{% endblock %}
+
+{% block container %}
+
+<h2>Unallocated Money In</h2>
+
+<table class='table'>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Payment Type</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Balance Left</th>
+            <th>Select Unsettled Invoice</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for money_in_object in money_in_objects %}
+            <tr>
+                
+                <td>{{ money_in_object.date }}</td>
+                <td>{{ money_in_object.payment_type }}</td>
+                <td>{{ money_in_object.desc }}</td>
+                <td>{{ money_in_object.amount }}</td>
+                <td>{{ money_in_object.balance_left }}</td>
+                <form method="post" action="{% url 'allocate_money_in' money_in_object.id %}">
+                    {% csrf_token %}
+                <td>
+                    <select class="form-select" name="unsettled_invoices" multiple size='3'>
+                        {{options_html}}
+                    </select>
+                </td>
+                <td>
+                    <button class='btn btn-primary' type='submit'>Allocate</button>
+                </td>
+            </form>
+            </tr>
+            
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+{% endblock %}
