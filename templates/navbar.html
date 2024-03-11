@@ -1,10 +1,11 @@
 {% load static %}
 <div>
   <nav class="d-flex flex-row bg-light container-fluid">
-    <div class='h-75'>
-      <a class="p-2 " style="background-color: transparent !important" href="{% url 'index_dashboard' %}">
+    <div class=''>
+      <a class="p-2 link-underline link-underline-opacity-0 text-black " style="background-color: transparent !important" href="{% url 'index_dashboard' %}">
         <!-- Replace the h1 tag with the img tag for the logo -->
-        <img src="{% static 'images/hrh_logo.png' %}" alt="Hollywood Rest Home Logo" class="logo" style="width: 100px; height: auto;">
+       <h1>{{request.tenant.name|capfirst}}</h1>
+        
       </a>
   </div>
     <div class="d-flex justify-content-end highlight m-4">

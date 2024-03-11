@@ -753,7 +753,12 @@ def generate_monthly_invoices(request):
         
         first_day_of_month = month_year_date.replace(day=1)
         last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-
+        last_day_attendance = Attendance.objects.filter(date=last_day_of_month)
+        
+        if not last_day_attendance.exists():
+            messages.error(request, f"No attendance recorded on the last day of {month_year_date.strftime('%B %Y')}. Invoices not generated.")
+            return redirect('invoices_list')
+        
         existing_invoices = Invoice.objects.filter(
             Q(date__range=(first_day_of_month, last_day_of_month))
         )

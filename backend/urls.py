@@ -6,6 +6,7 @@ from .views import send_monthly_invoices, generate_monthly_attendance_table, cli
 from .views import get_revenue_data, all_clients_view, download_all_clients_data, download_all_one_to_ones, download_current_clients_data, download_this_months_one_to_ones, add_credit_note, download_invoice_accountants_csv
 from .views import download_monies_in_accountants_csv, download_creditnote_accountants_csv, check_subscription
 
+
 urlpatterns = [
 
     path("check_subscription/",check_subscription, name='check_subscription'),

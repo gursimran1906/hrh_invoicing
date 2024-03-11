@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-&b7-v(siu&f4nb-(81@fm*pbu5n1eg(&ecf^x5)+ixht7yvu+o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -181,6 +181,11 @@ EMAIL_HOST_PASSWORD = 'Bassihome1906'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
+
 CRONJOBS = [
-    ('*/1 * * * *', 'backend.cron.daily_check_for_unmarked_attendance'),
+    ('0 16 * * *', 'backend.cron.daily_check_for_unmarked_attendance')
+]
+
+CRON_CLASSES = [
+    'backend.cron.DailyCheckForUnmarkedAttendance', 
 ]
