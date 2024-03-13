@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from urllib.parse import unquote
 from .forms import CustomUserCreationForm, CustomPasswordResetForm
 from .models import CustomUser
@@ -14,10 +14,23 @@ from django.contrib.auth import get_user_model
 
 from django.contrib.auth.views import PasswordResetConfirmView
 
+
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'password_reset_confirm_custom.html'
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Password reset successful. You can now log in.')
+        return response
 
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        messages.error(self.request, 'Password reset failed. Please try again.')
+        return response
+
+    def get_success_url(self):
+        # Customize the success URL here
+        return reverse_lazy('login')
 
 
 def register_user(request):

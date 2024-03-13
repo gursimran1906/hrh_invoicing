@@ -11,6 +11,6 @@ urlpatterns = [
     path('activate/<int:user_id>/',activate_user,name='activate_user'),
     path('send_password_reset/<int:user_id>/',send_password_reset,name='send_password_reset_email'),
     path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-
+    path('reset/confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='custom_password_reset_confirm'),
     path('all/', all_users, name='all_users'),
 ]
