@@ -21,6 +21,9 @@
           {% if user.is_invoice_department %}
             <a class="dropdown-item" href="{% url 'download_accountants_invoices_csv' %}" role="button">Accountant's Info</a>
           {% endif %}
+          {% if user.is_invoice_department %}
+            <a class="dropdown-item" href="{% url 'all_org_clients' %}" role="button">All Care Homes</a>
+          {% endif %}
           {% if user %}
             <a class="dropdown-item" href="{% url 'logout' %}" role="button">Logout</a>
           {% endif %}
@@ -38,8 +41,11 @@
         {% if user.is_invoice_department %}
           <a class="btn btn-primary  m-2 " href="{% url 'download_accountants_invoices_csv' %}">Accountant's Info</a>
         {% endif %}
+        {% if user.is_invoice_department %}
+            <a class="btn btn-primary  m-2" href="{% url 'all_org_clients' %}" role="button">All Care Homes</a>
+          {% endif %}
         {% if user %}
-          <a class="btn btn-primary  m-2 " href="{% url 'logout' %}" role="button">Logout</a>
+          <a class="btn btn-primary  m-2" href="{% url 'logout' %}" role="button">Logout</a>
         {% endif %}
       </div>
     </div>

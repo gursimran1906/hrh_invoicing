@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}All Care Homes{% endblock %}
+
+{% block container %}
+<h1>All Care Homes Information</h1>
+<table class='table table-striped'>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Available Invoice Users</th>
+            <th>Available Normal Admin Users</th>
+            <th>Paid Until</th>
+            <th>Last Invoice Month</th>
+            <!-- Add more table headers as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in client_info %}
+            <tr>
+                <td>{{ client.client_name }}</td>
+                <td>{{ client.no_of_available_invoice_users }}</td>
+                <td>{{ client.no_of_available_admin_users }}</td>
+                <td>{{ client.paid_until }}</td>
+                <td>{{ client.last_invoice_month }}</td>
+                <!-- Add more table data as needed -->
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

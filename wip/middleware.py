@@ -26,8 +26,6 @@ class ValidTenantUserMiddleware(TenantMainMiddleware):
             print(request.user)
             return
         
-        
-        
         if request.user.is_authenticated:
             if request.user.is_invoice_department:
                 return self.get_response(request)

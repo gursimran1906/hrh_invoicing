@@ -17,17 +17,21 @@ def register_user(request):
             # Get the current tenant
             
             tenant = get_tenant_model().objects.get(schema_name=request.tenant.schema_name)
+            is_invoice_department = form.cleaned_data.get('is_invoice_department')  
             
-            if tenant.no_of_available_users > 0:
-                print('request tenatnt',tenant.name)
+            if is_invoice_department and tenant.no_of_available_invoice_users > 0:
                 user = form.save(commit=True, tenant=tenant.name)
-                
-                tenant.no_of_available_users -= 1
-                tenant.save()
-                messages.success(request, f'Successfully signed up {user}')
+                tenant.no_of_available_invoice_users -= 1
+                messages.success(request, f'Successfully signed up {user} as an invoice user.')
+                return redirect('login')
+            elif tenant.no_of_available_admin_users > 0:
+                user = form.save(commit=True, tenant=tenant.name)
+                tenant.no_of_available_normal_users -= 1
+                messages.success(request, f'Successfully signed up {user} as an admin user.')
                 return redirect('login')
             else:
-                messages.error(request, 'No available users. Registration is not allowed.')
+                messages.error(request, 'No available users for the chosen Care Home. Contact administrator.')
+            
     else:
         form = CustomUserCreationForm()
 
