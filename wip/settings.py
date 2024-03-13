@@ -166,11 +166,11 @@ DATABASE_ROUTERS = (
 DATABASES = {
     "default": {
         "ENGINE": "django_tenants.postgresql_backend",
-        "NAME": "invoicing",
-        'USER': 'gb',
-        'PASSWORD': 'Mango@ANP290!',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT","5432"),
     }
 }
 
