@@ -165,6 +165,24 @@
          </div>
         </form>
     </div>
+    <form method="post" action="{% url 'download_all_invoices' %}" >
+      {% csrf_token %}
+    <div class="form-group row mt-2">
+      <div class='col-md-3'>
+          <input
+              type="month"
+              class="form-control "
+              id="monthPicker"
+              name="month_year"
+              value="{{ selected_month_year }}"
+              required
+          />
+      </div>
+      <div class='col-md-3'>
+           <button type="submit" class="btn btn-primary">Dowload Invoices</button>
+       </div>
+      </form>
+  </div>
   
 </div>
 <div class="row justify-content-end">

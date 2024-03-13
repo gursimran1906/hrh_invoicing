@@ -5,7 +5,7 @@ from .models import Client, Domain
 from django.http import HttpResponseForbidden
 from django.utils.safestring import mark_safe
 from django.contrib.sites.shortcuts import get_current_site
-
+from django.urls import reverse
 # Create your views here.
 
 def all_org_clients(request):
@@ -31,6 +31,7 @@ def all_org_clients(request):
                             'paid_until': tenant.paid_until.strftime('%d-%m-%Y'),
                             'created_on': tenant.created_on,
                             'last_invoice_month': last_invoice_month,
+                            'all_users': mark_safe(f'<a href="{reverse('all_users')}">All Users</a>')
                         })
         else:
             return HttpResponseForbidden('Access not allowed!')

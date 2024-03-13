@@ -1,3 +1,4 @@
+import shutil
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Invoice, OneToOne, Client, Rate, LocalAuthority, OneToOneAgency, Room, Attendance, MoneyIn, CreditNote
 from .forms import ClientForm, LocalAuthorityForm, RateForm, OneToOneForm, OneToOneAgencyForm, InvoiceForm, MoneyInForm, CreditNoteForm
@@ -19,6 +20,13 @@ import csv
 from django.utils.encoding import smart_str
 from weasyprint import HTML
 from django_tenants.utils import get_tenant_model
+import os
+from django.http import HttpResponse
+from django.core.files import File
+from django.http import HttpResponse
+from django.core.files.temp import NamedTemporaryFile
+from zipfile import ZipFile
+import tempfile
 
 @login_required
 def check_subscription(request):
@@ -835,10 +843,12 @@ def send_monthly_invoices(request):
         for invoice in existing_invoices:
             if invoice.sent_to_client == False:
                 try:
-                    send_invoice_email(invoice.invoice_number,invoice.client.email, month_year_date,request.user)
-                    invoice.sent_to_client = True
-                    all_emails_sent = True
-                    invoice.save()
+                    sent = send_invoice_email(invoice.invoice_number,invoice.client.email, month_year_date,request.user, request.tenant)
+                    print(sent)
+                    if sent:
+                        invoice.sent_to_client = True
+                        all_emails_sent = True
+                        invoice.save()
                 except Exception as e:
                     messages.error(request, f'Error in sending invoice {invoice.invoice_number}')
             else:
@@ -854,7 +864,55 @@ def send_monthly_invoices(request):
     
     return redirect('invoices_list')
 
-def make_pdf_of_invoice(invoice_number, hide_client_details, user):
+@login_required
+def download_all_invoices(request):
+    
+    try:
+        today = date.today()
+        month_year = request.POST.get('month_year')
+
+        month_year_date = datetime.strptime(month_year, '%Y-%m').date()
+        
+        first_day_of_month = month_year_date.replace(day=1)
+        last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+        existing_invoices = Invoice.objects.filter(
+            Q(date__range=(first_day_of_month, last_day_of_month))
+        )
+        if not existing_invoices.exists():
+            messages.error(request, f'No invoices to download for {month_year_date.strftime("%B %Y")}')
+            return redirect('invoices_list')
+            
+        mem_zip = BytesIO()
+
+        with ZipFile(mem_zip, mode="w") as zf:
+            invoices_failed = []
+            for invoice in existing_invoices:
+                try:
+                    invoice_file = make_pdf_of_invoice(invoice.invoice_number, False, request.user, request.tenant)  # Replace with your function to generate PDFs
+                    invoice_file_name = f"Invoice_ {invoice.invoice_number}.pdf"
+                    zf.writestr(invoice_file_name, invoice_file)
+
+                except Exception as e:
+                    invoices_failed.append(invoice.invoice_number)
+                    messages.error(request, f'Error in generating invoice {invoice.invoice_number}')
+
+            if invoices_failed:
+                messages.error(request, f'Error in generating invoices: {invoices_failed}')
+
+        # Prepare the response
+        mem_zip.seek(0)
+        response = HttpResponse(mem_zip.read(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="invoices_{month_year_date.strftime("%Y-%m")}.zip'
+        
+        return response
+
+    except Exception as e:
+        messages.error(request, f'An error was encountered. Please contact your administrators and send them a photo of this message. Error: {e}')
+    
+    return redirect('invoices_list')
+
+def make_pdf_of_invoice(invoice_number, hide_client_details, user, tenant):
     invoice = Invoice.objects.get(invoice_number=invoice_number)
     datetime_now = datetime.now().strftime('%d-%m-%Y @%H:%M')
     
@@ -952,12 +1010,12 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user):
                             <table class='table'>
                                 <tr>
                                     <td>Payable to:</td>
-                                    <td>HRH Healthcare Ltd</td>
+                                    <td>{tenant.bank_account_name}</td>
                                 </tr>
 
                                 <tr>
                                     <td>Post to:</td>
-                                    <td>34 Cresthill Avenue<br>Grays<br>Essex<br>RM17 5UJ</td>
+                                    <td>{tenant.address}</td>
                                 </tr>
                             </table>
                             
@@ -967,25 +1025,25 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user):
                             <table class='table' >
                                 <tr>
                                     <td>Account Name:</td>
-                                    <td>HRH Healthcare Ltd t/a Hollywood Rest Home</td>
+                                    <td>{tenant.bank_account_name}</td>
                                 </tr>
 
                                 <tr>
                                     <td>Bank:</td>
-                                    <td>Barclays</td>
+                                    <td>{tenant.bank_name}</td>
                                 </tr>
                                 <tr>
                                     <td>Account no:</td>
-                                    <td>23258327</td>
+                                    <td>{tenant.bank_account_no}</td>
                                 </tr>
                                 <tr>
                                     <td>Sort Code:</td>
-                                    <td>20-04-96</td>
+                                    <td>{tenant.bank_sort_code}</td>
                                 </tr>
                             </table>
                         </div>
                         <div class="col-md-12 text-center">
-                                        <p>Hollywood Resthome, 34 Cresthill Avenue, Grays, Essex RM17 5UJ. Hollywood Resthome is a trading name of HRH Healthcare Ltd. <br>HRH Healthcare Ltd is registered in England & Wales under company no: 5062468</p>
+                                        <p>{tenant.invoice_footer}</p>
                         </div>
                         <div class='col-md-12 text-center' ><small class='fs-6'>Invoice generated by {user} on {datetime_now}hrs</small></div>
                     </div>
@@ -1006,14 +1064,14 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user):
 
     return pdf_content
 
-def send_invoice_email(invoice_number, recipient_email, month_year, auth_user):
+def send_invoice_email(invoice_number, recipient_email, month_year, auth_user, tenant):
     try:
-        subject = f'Hollywood Rest Home - Invoice for {month_year.strftime('%B %Y')}'
-        message = f'Dear Sirs,\n\nPlease find attached our invoice for {month_year.strftime('%B %Y')}.\n\nKind regards,\nHollywood Rest Home'
+        subject = f'{tenant.name.capitalize()} - Invoice for {month_year.strftime('%B %Y')}'
+        message = f'Dear Sirs,\n\nPlease find attached our invoice for {month_year.strftime('%B %Y')}.\n\nKind regards,\n{tenant.name.capitalize()}'
 
         email = EmailMessage(subject, message, to=[recipient_email])
 
-        pdf_content = make_pdf_of_invoice(invoice_number, True, auth_user)
+        pdf_content = make_pdf_of_invoice(invoice_number, True, auth_user, tenant)
 
         # Attach the PDF to the email
         pdf_filename = f'invoice_{invoice_number}.pdf'
@@ -1030,7 +1088,7 @@ def download_invoice(request, invoice_number):
     # Create a response object with PDF content type
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename=invoice_{invoice_number}.pdf'
-    pdf_content = make_pdf_of_invoice(invoice_number, False, request.user)
+    pdf_content = make_pdf_of_invoice(invoice_number, False, request.user, request.tenant)
 
     
     response.write(pdf_content)

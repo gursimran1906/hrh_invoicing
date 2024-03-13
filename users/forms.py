@@ -1,6 +1,20 @@
+from base64 import urlsafe_b64encode
+from click import get_current_context
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from .models import CustomUser
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    user = None
+
+    def get_users(self, email):
+        """
+        Instead of getting all users in an email,
+        just sent the user that we want to reset password for.
+        """
+        return [self.user]
+
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):

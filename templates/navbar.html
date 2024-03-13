@@ -8,24 +8,25 @@
         
       </a>
   </div>
-    <div class="d-flex justify-content-end highlight m-4">
+    <div class="d-flex justify-content-end highlight w-100">
       <!-- Add the responsive dropdown button -->
-      <div class="dropdown d-lg-none m-2 float-end">
-        <a class="btn btn-primary rounded-5 dropdown-toggle  " href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          
-        </a>
+      <div class="dropdown d-lg-none mt-2 float-end">
+        <a class="btn btn-primary dropdown-toggle  " href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Menu</a>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <a class="dropdown-item" href="{% url 'add_client' %}">Add Client</a>
-          <a class="dropdown-item" href="{% url 'add_rate' %}">Add Rate</a>
-          <a class="dropdown-item" href="{% url 'add_local_authority' %}">Add Local Authority</a>
+          <a class="dropdown-item border-bottom" href="{% url 'add_client' %}">Add Client</a>
+          <a class="dropdown-item border-bottom" href="{% url 'add_rate' %}">Add Rate</a>
+          <a class="dropdown-item border-bottom" href="{% url 'add_local_authority' %}">Add Local Authority</a>
           {% if user.is_invoice_department %}
-            <a class="dropdown-item" href="{% url 'download_accountants_invoices_csv' %}" role="button">Accountant's Info</a>
+            <a class="dropdown-item border-bottom" href="{% url 'download_accountants_invoices_csv' %}" role="button">Accountant's Info</a>
           {% endif %}
           {% if user.is_invoice_department %}
-            <a class="dropdown-item" href="{% url 'all_org_clients' %}" role="button">All Care Homes</a>
+            <a class="dropdown-item border-bottom" href="{% url 'all_org_clients' %}" role="button">All Care Homes</a>
+          {% endif %}
+          {% if user.is_invoice_department %}
+            <a class="dropdown-item border-bottom" href="{% url 'register_new_user' %}" role="button">Register User</a>
           {% endif %}
           {% if user %}
-            <a class="dropdown-item" href="{% url 'logout' %}" role="button">Logout</a>
+            <a class="dropdown-item border-bottom" href="{% url 'logout' %}" role="button">Logout</a>
           {% endif %}
 
           <!-- Add more dropdown items as needed -->
@@ -33,20 +34,32 @@
       </div>
 
       <!-- Add the navigation links for larger screens -->
-      <div class="d-none d-lg-flex ">
-        <a class="btn btn-primary  m-2 " href="{% url 'add_client' %}">Add Client</a>
-       
-        <a class="btn btn-primary   m-2 " href="{% url 'add_rate' %}">Add Rate</a>
-        <a class="btn btn-primary  m-2 " href="{% url 'add_local_authority' %}">Add Local Authority</a>
+      <div class="d-none d-lg-flex mt-4">
+        <div class="dropdown">
+          <a class="btn btn-primary dropdown-toggle m-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Add
+          </a>
+          <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item border-bottom" href="{% url 'add_client' %}">Client</a>
+            <a class="dropdown-item border-bottom" href="{% url 'add_rate' %}">Rate</a>
+            <a class="dropdown-item border-bottom" href="{% url 'add_local_authority' %}">Local Authority</a>
+          </div>
+        </div>
+        <div>
         {% if user.is_invoice_department %}
           <a class="btn btn-primary  m-2 " href="{% url 'download_accountants_invoices_csv' %}">Accountant's Info</a>
         {% endif %}
         {% if user.is_invoice_department %}
             <a class="btn btn-primary  m-2" href="{% url 'all_org_clients' %}" role="button">All Care Homes</a>
           {% endif %}
+          
+          {% if user.is_invoice_department %}
+          <a class="btn btn-primary  m-2" href="{% url 'register_new_user' %}" role="button">Register User</a>
+        {% endif %}
         {% if user %}
           <a class="btn btn-primary  m-2" href="{% url 'logout' %}" role="button">Logout</a>
         {% endif %}
+        </div>
       </div>
     </div>
   </nav>

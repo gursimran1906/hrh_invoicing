@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}All Care Homes{% endblock %}
+
+{% block container %}
+<h2 class='text-center pb-2 pt-2'>User List</h2>
+    <div class='table-responsive'>
+    <table class='table table-striped '>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Is Active</th>
+                <th>Care Home(s)</th>
+                <th>Department</th>
+                {% if request.user.is_invoice_department %}
+                    <th>Send Password Reset Link</th>
+                    <th>Activate/Deactivate User</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            
+            {% for user in users %}
+                <tr>
+                    <td>{{user.id}}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{user.is_active}}</td>
+                    <td>{{user.tenant}}</td>
+                    {% if user.is_invoice_department %}
+                    <td>Invoice</td>
+                    {% else %}
+                    <td>Admin</td>
+                    {% endif %}
+                    {% if request.user.is_invoice_department %}
+                        <td><a href="{% url 'send_password_reset_email' user.id %}">Send Reset Link</a></td>
+                        <td>
+                        {% if user.is_active %}
+                                <a href="#" onclick="confirmAction('{{ user.username }}', {{ user.id }}, 'deactivate')">Deactivate User</a>
+                            {% else %}
+                                <a href="#" onclick="confirmAction('{{ user.username }}', {{ user.id }}, 'activate')">Activate User</a>
+                        {% endif %}
+                        </td>
+                    {% endif %}
+                </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    <script>
+        function confirmAction(username, userId, action) {
+            var confirmMessage = 'Do you want to ' + action + ' user ' + username + '?';
+            var confirmation = confirm(confirmMessage);
+
+            if (confirmation) {
+                var redirectUrl = action === 'activate' ? "{% url 'activate_user' 0 %}" : "{% url 'deactivate_user' 0 %}";
+                window.location.href = redirectUrl.replace('0', userId);
+            }
+        }
+    </script>
+
+    {% endblock %}

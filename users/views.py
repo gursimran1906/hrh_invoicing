@@ -3,11 +3,21 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.urls import reverse
 from urllib.parse import unquote
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, CustomPasswordResetForm
 from .models import CustomUser
 from django.contrib import messages
 from django_tenants.utils import get_tenant_model, get_public_schema_name
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth import get_user_model
+
+from django.contrib.auth.views import PasswordResetConfirmView
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'password_reset_confirm_custom.html'
+
+
 
 
 def register_user(request):
@@ -36,6 +46,48 @@ def register_user(request):
         form = CustomUserCreationForm()
 
     return render(request, 'register_user.html', {'form': form})
+
+@login_required
+def all_users(request):
+    if request.user.is_invoice_department:
+        all_users = CustomUser.objects.all().order_by('id')
+    else:
+        all_users = CustomUser.objects.filter(tenant=request.tenant.name).order_by('id')
+    
+    return render(request, 'all_users.html', {'users': all_users})  
+
+@login_required
+def send_password_reset(request, user_id):
+    user = CustomUser.objects.get(pk=user_id)
+    form = CustomPasswordResetForm({'email':user.email})
+    
+    if form.is_valid():
+        form.user = user
+        form.save(
+            request=request,
+            use_https=request.is_secure(),
+            from_email=None,
+        )
+        messages.success(request, f"Password reset link sent to {user.email}")
+    else:
+        messages.error(request, f"Failed to send password reset link to {user.email}")
+    return redirect('all_users')
+
+@login_required
+def remove_or_restrict_user(request, user_id):
+    user = CustomUser.objects.get(pk=user_id)
+    user.is_active = False
+    user.save()
+    messages.success(request, f"User {user.username} deactivated successfully.")
+    return redirect('all_users')
+
+@login_required
+def activate_user(request, user_id):
+    user = CustomUser.objects.get(pk=user_id)
+    user.is_active = True
+    user.save()
+    messages.success(request, f"User {user.username} activate successfully.")
+    return redirect('all_users')
 
 def login_view(request):
     if request.method == 'POST':

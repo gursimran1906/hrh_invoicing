@@ -3,7 +3,8 @@
 {% block title %}All Care Homes{% endblock %}
 
 {% block container %}
-<h1>All Care Homes Information</h1>
+<h2 class='text-center pb-2 pt-2'>All Care Homes Information</h2>
+<div class='table-responsive'>
 <table class='table table-striped'>
     <thead>
         <tr>
@@ -12,7 +13,7 @@
             <th>Available Normal Admin Users</th>
             <th>Paid Until</th>
             <th>Last Invoice Month</th>
-            <!-- Add more table headers as needed -->
+            <th>All Users</th>
         </tr>
     </thead>
     <tbody>
@@ -23,9 +24,11 @@
                 <td>{{ client.no_of_available_admin_users }}</td>
                 <td>{{ client.paid_until }}</td>
                 <td>{{ client.last_invoice_month }}</td>
+                <td>{{ client.all_users }}</td>
                 <!-- Add more table data as needed -->
             </tr>
         {% endfor %}
     </tbody>
 </table>
+</div>
 {% endblock %}
