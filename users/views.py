@@ -49,7 +49,7 @@ def register_user(request):
                 return redirect('login')
             elif tenant.no_of_available_admin_users > 0:
                 user = form.save(commit=True, tenant=tenant.name)
-                tenant.no_of_available_normal_users -= 1
+                tenant.no_of_available_admin_users -= 1
                 messages.success(request, f'Successfully signed up {user} as an admin user.')
                 return redirect('login')
             else:
