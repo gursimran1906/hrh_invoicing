@@ -1,0 +1,54 @@
+amqp==5.2.0
+asgiref==3.7.2
+beautifulsoup4==4.12.3
+billiard==4.2.0
+bootstrap4==0.1.0
+Brotli==1.1.0
+cffi @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_b4nang6w_y/croot/cffi_1700254307954/work
+chardet==5.2.0
+click==8.1.7
+click-didyoumean==0.3.0
+click-plugins==1.1.1
+click-repl==0.3.0
+contourpy==1.2.0
+cssselect2==0.7.0
+cycler==0.12.1
+decouple==0.0.7
+Django==5.0.2
+django-bootstrap4==24.1
+django-cron==0.6.0
+django-crontab==0.7.1
+django-preventconcurrentlogins==0.8.2
+django-simple-history==3.5.0
+django-tenants==3.6.1
+fontawesomefree==6.0.0
+fonttools==4.25.0
+html5lib @ file:///Users/ktietz/demo/mc3/conda-bld/html5lib_1629144453894/work
+kiwisolver==1.4.5
+kombu==5.3.5
+matplotlib==3.8.3
+munkres==1.1.4
+numpy==1.26.4
+packaging==23.2
+pillow @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_e02b4k5qik/croot/pillow_1707233036487/work
+prompt-toolkit==3.0.43
+psycopg2-binary==2.9.9
+pycparser @ file:///tmp/build/80754af9/pycparser_1636541352034/work
+pydyf @ file:///home/conda/feedstock_root/build_artifacts/pydyf_1695654182853/work
+pyparsing==3.1.1
+pyphen @ file:///Users/builder/cbouss/perseverance-python-buildout/croot/pyphen_1699261468112/work
+python-dateutil==2.8.2
+python-dotenv==1.0.1
+setuptools==68.2.2
+simplejson==3.19.2
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+soupsieve==2.5
+sqlparse==0.4.4
+tinycss2 @ file:///Users/builder/cbouss/perseverance-python-buildout/croot/tinycss2_1699250325251/work
+tzdata==2024.1
+vine==5.1.0
+wcwidth==0.2.13
+weasyprint @ file:///home/conda/feedstock_root/build_artifacts/weasyprint_1707743361546/work/weasyprint-61.0-py3-none-any.whl#sha256=1dd5e929389b7ebcbff3088da7af13ae7ab201dce3a2faca7832b1dd5cec60ea
+webencodings @ file:///Users/builder/cbouss/perseverance-python-buildout/croot/webencodings_1699243630039/work
+wheel==0.41.2
+zopfli==0.2.3
