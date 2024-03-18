@@ -24,6 +24,7 @@ def all_org_clients(request):
                         last_invoice_month = last_invoice_month.date.strftime('%B %Y')
                     else:
                         last_invoice_month = '-'
+                    all_users_url = reverse('all_users')
                     client_info.append({
                             'client_name': mark_safe(f'<a href="{url}">{tenant.name.capitalize()}</a>'),
                             'no_of_available_invoice_users': tenant.no_of_available_invoice_users,
@@ -31,7 +32,7 @@ def all_org_clients(request):
                             'paid_until': tenant.paid_until.strftime('%d-%m-%Y'),
                             'created_on': tenant.created_on,
                             'last_invoice_month': last_invoice_month,
-                            'all_users': mark_safe(f'<a href="{reverse('all_users')}">All Users</a>')
+                            'all_users': mark_safe(f'<a href="{all_users_url}">All Users</a>')
                         })
         else:
             return HttpResponseForbidden('Access not allowed!')

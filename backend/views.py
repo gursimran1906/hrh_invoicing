@@ -18,7 +18,6 @@ from dateutil.relativedelta import relativedelta
 from django.db.models.functions import TruncMonth
 import csv
 from django.utils.encoding import smart_str
-from weasyprint import HTML
 from django_tenants.utils import get_tenant_model
 import os
 from django.http import HttpResponse
@@ -55,9 +54,14 @@ def all_clients_view(request):
     'client_agreed_rate__amount',  
     'allotted_room__id',  
     'payable_by__name', 'respite','notes','timestamp')
+    
+
     for client in clients:
-        client['name'] = mark_safe(f'<a href="{reverse('client_view', args=[client['id']])}">{client['name']}</a>')
-        client['edit'] = mark_safe(f'<a href="{reverse('edit_client', args=[client['id']])}">Edit</a>')
+        client_view_url = reverse('client_view', args=[client['id']])
+        client_name = client['name']
+        client['name'] = mark_safe(f'<a href="{client_view_url}">{client_name}</a>')
+        edit_client_url = reverse('edit_client', args=[client['id']])
+        client['edit'] = mark_safe(f'<a href="{edit_client_url}">Edit</a>')
         
     return render(request, 'all_clients_table.html', {'clients': clients})
 
@@ -220,8 +224,11 @@ def add_client(request):
             'resident_ref', 'respite', 'id'
         )
     for client in client_objects:
-        client['name'] = mark_safe(f'<a href="{reverse('client_view', args=[client['id']])}">{client['name']}</a>')
-        client['edit'] = mark_safe(f'<a href="{reverse('edit_client', args=[client['id']])}">Edit</a>')
+        client_view_url = reverse('client_view', args=[client['id']])
+        client_name = client['name']
+        client['name'] = mark_safe(f'<a href="{client_view_url}">{client_name}</a>')
+        edit_client_url = reverse('edit_client', args=[client['id']])
+        client['edit'] = mark_safe(f'<a href="{edit_client_url}">Edit</a>')
 
 
 
@@ -243,7 +250,8 @@ def add_local_authority(request):
     local_authority_objects = LocalAuthority.objects.values('id', 'name',  'contact_number', 'email', 'address', 'hide_client_deatils')
 
     for local_authority in local_authority_objects:
-        local_authority['edit'] = mark_safe(f'<a href="{reverse('edit_local_authority', args=[local_authority['id']])}">Edit</a>')
+        edit_url = reverse('edit_local_authority', args=[local_authority['id']])
+        local_authority['edit'] = mark_safe(f'<a href="{edit_url}">Edit</a>')
 
     return render(request, 'add_model_display_form.html', {'form': form, 'title':'Local Authority', 'objects': local_authority_objects})
 
@@ -263,7 +271,8 @@ def add_rate(request):
     rate_objects = Rate.objects.values()
 
     for rate in rate_objects:
-        rate['edit'] = mark_safe(f'<a href="{reverse('edit_rate', args=[rate['id']])}">Edit</a>')
+        edit_url = reverse('edit_rate', args=[rate['id']])
+        rate['edit'] = mark_safe(f'<a href="{edit_url}">Edit</a>')
 
     return render(request, 'add_model_display_form.html', {'form': form, 'title':'Rate', 'objects': rate_objects})
 
@@ -283,7 +292,8 @@ def add_one_to_one(request):
 
     one_to_one_objects = OneToOne.objects.select_related('customer').order_by('-date').values('id', 'date', 'hours', 'customer__name')
     for one_to_one in one_to_one_objects:
-        one_to_one['edit'] = mark_safe(f'<a href="{reverse('edit_one_to_one', args=[one_to_one['id']])}">Edit</a>')
+        edit_url = reverse('edit_one_to_one', args=[one_to_one['id']])
+        one_to_one['edit'] = mark_safe(f'<a href="{edit_url}">Edit</a>')
     
     return render(request, 'add_model_display_form.html', {'form': form, 'title':'One To One', 'objects': one_to_one_objects})
 
@@ -577,7 +587,7 @@ def generate_monthly_attendance_chart(request, month_year):
     buffer.seek(0)
 
     response = HttpResponse(buffer.read(), content_type='image/png')
-    response['Content-Disposition'] = f'attachment; filename="Bed_Occupancy_Chart_{month_year_date.strftime('%B %Y')}.png"'
+    response['Content-Disposition'] = f'attachment; filename="Bed_Occupancy_Chart_{month_year_date.strftime("%B %Y")}.png"'
 
     return response
 
@@ -629,7 +639,7 @@ def generate_monthly_attendance_table(request, month_year):
     </head>
     
     <body class=''>
-        <h2>Monthly Attendance Table - {month_year_date.strftime('%B %Y')}</h2>
+        <h2>Monthly Attendance Table - {month_year_date.strftime("%B %Y")}</h2>
         <div style="clear:both;"><div>
         <table class='table w-unset'>
             <thead>
@@ -648,7 +658,7 @@ def generate_monthly_attendance_table(request, month_year):
 
     # Create a response with PDF mime type
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=monthly_attendance_{month_year_date.strftime('%B_%Y')}.pdf'
+    response['Content-Disposition'] = f'attachment; filename=monthly_attendance_{month_year_date.strftime("%B_%Y")}.pdf'
 
     # Generate PDF using WeasyPrint and write it to the response
     HTML(string=html_content).write_pdf(response)
@@ -813,7 +823,7 @@ def generate_monthly_invoices(request):
                 
             )
 
-        messages.success(request, f'Invoices for {month_year_date.strftime('%B %Y')} successfully generated.')
+        messages.success(request, f'Invoices for {month_year_date.strftime("%B %Y")} successfully generated.')
 
     except Exception as e:
         messages.error(request,f'Error: {str(e)}')
@@ -856,9 +866,9 @@ def send_monthly_invoices(request):
                 invoices_failed.append(invoice.invoice_number)
                 
         if all_emails_sent:
-            messages.success(request, f'Invoices for {month_year_date.strftime('%B %Y')} successfully sent.')
+            messages.success(request, f'Invoices for {month_year_date.strftime("%B %Y")} successfully sent.')
         else:
-            messages.error(request, f'Invoices {invoices_failed} of month {month_year_date.strftime('%B %Y')} already sent to clients')
+            messages.error(request, f'Invoices {invoices_failed} of month {month_year_date.strftime("%B %Y")} already sent to clients')
     except Exception as e:
         messages.error(request, f'An error was encountered. Please contact your adminsistrators and send them a photo of this message. Error: {e}')
     
@@ -1066,8 +1076,8 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user, tenant):
 
 def send_invoice_email(invoice_number, recipient_email, month_year, auth_user, tenant):
     try:
-        subject = f'{tenant.name.capitalize()} - Invoice for {month_year.strftime('%B %Y')}'
-        message = f'Dear Sirs,\n\nPlease find attached our invoice for {month_year.strftime('%B %Y')}.\n\nKind regards,\n{tenant.name.capitalize()}'
+        subject = f'{tenant.name.capitalize()} - Invoice for {month_year.strftime("%B %Y")}'
+        message = f'Dear Sirs,\n\nPlease find attached our invoice for {month_year.strftime("%B %Y")}.\n\nKind regards,\n{tenant.name.capitalize()}'
 
         email = EmailMessage(subject, message, to=[recipient_email])
 
