@@ -123,14 +123,57 @@
     });
   });
 </script>
+<script>
+  $(document).ready(function() {
+    // Function to handle form submission and show loading spinner
+    function handleFormSubmission(formSelector) {
+      
+      var isValid = true;
+      $(formSelector + ' [required]').each(function() {
+        if ($(this).val() === '') {
+          isValid = false;
+          return false; // Exit the loop early if a required field is empty
+        }
+      });
+
+      if (!isValid) {
+        alert('Please choose month and year.');
+        return; 
+      }
+      $(formSelector + "Btn").prop("disabled", true);
+
+      // Show the spinner and hide the button text
+      $(formSelector + " .spinner-border").removeClass("d-none");
+      $(formSelector + " .btnText").hide();
+
+      // Submit the form
+      $(formSelector).submit();
+    }
+
+    // Event handler for the first form
+    $("#firstFormBtn").click(function() {
+      handleFormSubmission("#firstForm");
+    });
+
+    // Event handler for the second form
+    $("#secondFormBtn").click(function() {
+      handleFormSubmission("#secondForm");
+    });
+
+    // Event handler for the third form
+    $("#thirdFormBtn").click(function() {
+      handleFormSubmission("#thirdForm");
+    });
+  });
+</script>
+
 
 <div class='w-50 mb-3'>
-  <form method="post" action="{% url 'generate_monthly_invoices' %}" >
+  <form id="firstForm" method="post" action="{% url 'generate_monthly_invoices' %}" >
       {% csrf_token %}
 
       <div class="form-group row">
           <div class='col-md-3'>
-               {% comment %} <label for="monthPicker" class="">Select Month and Year:</label> {% endcomment %}
               <input
                   type="month"
                   class="form-control "
@@ -141,50 +184,67 @@
               />
           </div>
           <div class='col-md-3'>
-               <button type="submit" class="btn btn-primary">Generate Invoices</button>
+            <button id="firstFormBtn" type="button" class="btn btn-primary">
+              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+              <span class="btnText">Generate Invoices</span>
+            </button>
+           
            </div>
           </form>
       </div>
-      <form method="post" action="{% url 'send_monthly_invoices' %}" >
-        {% csrf_token %}
+</div>
+
+<div class='w-50 mb-3'>
+  <form id="secondForm" method="post" action="{% url 'send_monthly_invoices' %}" >
+    {% csrf_token %}
   
-      <div class="form-group row mt-2">
-        <div class='col-md-3'>
-             {% comment %} <label for="monthPicker" class="">Select Month and Year (to send invoices):</label> {% endcomment %}
-            <input
-                type="month"
-                class="form-control "
-                id="monthPicker"
-                name="month_year"
-                value="{{ selected_month_year }}"
-                required
-            />
-        </div>
-        <div class='col-md-3'>
-             <button type="submit" class="btn btn-primary">Send Invoices</button>
-         </div>
-        </form>
-    </div>
-    <form method="post" action="{% url 'download_all_invoices' %}" >
-      {% csrf_token %}
     <div class="form-group row mt-2">
       <div class='col-md-3'>
-          <input
-              type="month"
-              class="form-control "
-              id="monthPicker"
-              name="month_year"
-              value="{{ selected_month_year }}"
-              required
-          />
+        {% comment %} <label for="monthPicker" class="">Select Month and Year (to send invoices):</label> {% endcomment %}
+        <input
+          type="month"
+          class="form-control "
+          id="monthPicker"
+          name="month_year"
+          value="{{ selected_month_year }}"
+          required
+        />
       </div>
       <div class='col-md-3'>
-           <button type="submit" class="btn btn-primary">Dowload Invoices</button>
-       </div>
-      </form>
-  </div>
-  
+        <button id="secondFormBtn" type="submit" class="btn btn-primary">
+          <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+          <span class="btnText">Send Invoices</span>
+        </button>
+      </div>
+    </div>
+  </form>
 </div>
+
+<div class='w-50 mb-3'>
+  <form id="thirdForm" method="post" action="{% url 'download_all_invoices' %}" >
+    {% csrf_token %}
+  
+    <div class="form-group row mt-2">
+      <div class='col-md-3'>
+        <input
+          type="month"
+          class="form-control "
+          id="monthPicker"
+          name="month_year"
+          value="{{ selected_month_year }}"
+          required
+        />
+      </div>
+      <div class='col-md-3'>
+        <button id="thirdFormBtn" type="button" class="btn btn-primary">
+          <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+          <span class="btnText">Download Invoices</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
 <div class="row justify-content-end">
     <div class="col-lg-4 mt-3">
       <table class="table table-striped shadow-lg ">
@@ -202,6 +262,8 @@
       </table>
     </div>
   </div>
+
+ 
 
 <div class="table-responsive">
   <table class="table table-striped" style='width:100%;%' id="invoicesTable">
