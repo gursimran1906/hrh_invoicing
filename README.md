@@ -3,15 +3,16 @@ Run following commands
 
     brew install pango
 
-    While making venv need to enable system site packages in pyenv.cfg or before
-
     source venv/bin/activate
+
 
     python manage.py makemigrations   
 
     python manage.py migrate_schemas --shared
 
     python manage.py crontab add
+
+    if we have error running try: python3 -m venv --system-site-packages venv 
 
 MUST HAVE ENV VARIABLES
    
