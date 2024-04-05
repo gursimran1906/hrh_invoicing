@@ -64,16 +64,16 @@
                 <div class="messages">
                     {% for message in messages %}
                         {% if message.tags == 'success' %}
-                            <div class="alert alert-success" role="alert">
+                            <div class="alert alert-success shadow" role="alert">
                               <i class="fa-regular fa-circle-check"></i> {{ message }}
                             </div>
                         {% elif message.tags == 'error' %}
-                            <div class="alert alert-danger" role="alert">
+                            <div class="alert alert-danger shadow" role="alert">
                               <i class="fa-regular fa-triangle-exclamation"></i> {{ message }}
                             </div>
                         {% else %}
                             <!-- Handle other message levels if needed -->
-                            <div class="alert alert-info" role="alert">
+                            <div class="alert alert-info shadow" role="alert">
                               <i class="fa-regular fa-triangle-exclamation"></i>   {{ message }}
                             </div>
                         {% endif %}
