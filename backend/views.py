@@ -941,7 +941,7 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user, tenant):
                 <div class="container">
                     <div class="row mb-5">
                         <div class="col-8">
-                            <h1>Hollywood Rest Home</h1>
+                            <h1>{tenant.name.upper()}</h1>
                         </div>
                         <div class="col-4 ">
                             <h1 class='float-right'>Invoice</h1>
