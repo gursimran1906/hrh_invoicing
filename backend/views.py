@@ -27,6 +27,7 @@ from django.core.files.temp import NamedTemporaryFile
 from zipfile import ZipFile
 import tempfile
 from weasyprint import HTML
+from django.core import mail
 
 @login_required
 def check_subscription(request):
@@ -350,7 +351,7 @@ def add_credit_note(request):
 
     one_to_one_objects = CreditNote.objects.values()
 
-    return render(request, 'add_model_display_form.html', {'form': form, 'title':'Money In', 'objects': one_to_one_objects})
+    return render(request, 'add_model_display_form.html', {'form': form, 'title':'Credit Note', 'objects': one_to_one_objects})
 
 @login_required
 def edit_invoice(request, invoice_number):
@@ -455,11 +456,10 @@ def edit_money_in(request, id):
 def unallocated_money_in(request):
     money_in_objects = MoneyIn.objects.filter(balance_left__gt=0)
     invoices_objects = Invoice.objects.filter(Q(settled=False) | Q(settled__isnull=True))
-    print(money_in_objects)
-    print(invoices_objects)
+    
     options = []
     for invoice in invoices_objects:
-        options.append(f'<option value="{invoice.invoice_number}">{invoice.invoice_number} - Client: {invoice.client}</option>')
+        options.append(f'<option value="{invoice.invoice_number}">{invoice.invoice_number} - ({invoice.client.payable_by}) Client: {invoice.client}</option>')
 
     # Join the options and mark it as safe
     options_html = mark_safe('\n'.join(options))
@@ -518,7 +518,6 @@ def dashboard(request):
 
     
     return render(request,'dashboard.html', {'unsettled_overdue_invoices': unsettled_overdue_invoices})
-
 
 @login_required
 def get_attendance_data(request):
@@ -851,12 +850,14 @@ def send_monthly_invoices(request):
             
         all_emails_sent = False
         invoices_failed = []
+        connection = mail.get_connection()
+        connection.open()
         for invoice in existing_invoices:
             if invoice.sent_to_client == False:
                 try:
                     sent = send_invoice_email(invoice.invoice_number,invoice.client.email, month_year_date,request.user, request.tenant)
                     print(sent)
-                    if sent:
+                    if sent == True:
                         invoice.sent_to_client = True
                         all_emails_sent = True
                         invoice.save()
@@ -865,12 +866,13 @@ def send_monthly_invoices(request):
             else:
                 all_emails_sent = False
                 invoices_failed.append(invoice.invoice_number)
-                
+        connection.close()       
         if all_emails_sent:
             messages.success(request, f'Invoices for {month_year_date.strftime("%B %Y")} successfully sent.')
         else:
             messages.error(request, f'Invoices {invoices_failed} of month {month_year_date.strftime("%B %Y")} already sent to clients')
     except Exception as e:
+        connection.close()
         messages.error(request, f'An error was encountered. Please contact your adminsistrators and send them a photo of this message. Error: {e}')
     
     return redirect('invoices_list')
