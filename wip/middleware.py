@@ -30,7 +30,7 @@ class ValidTenantUserMiddleware(TenantMainMiddleware):
             if request.user.is_invoice_department:
                 return self.get_response(request)
 
-            current_tenant = request.tenant.schema_name
+            current_tenant = request.tenant.name
             user_assigned_tenant = request.user.tenant
 
             if user_assigned_tenant == current_tenant:
