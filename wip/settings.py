@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = ['*']
-CSRF_COOKIE_SECURE = True
+DEBUG = True
+# ALLOWED_HOSTS = ['*']
+# CSRF_COOKIE_SECURE = True
 
 
 ADMINS = [('Gursimran', 'gursimran1906@gmail.com')]
@@ -98,10 +98,10 @@ SHARED_APPS = [
     "django.contrib.postgres",
     'bootstrap4',
     'fontawesomefree',
-    'simple_history',
     'django_cron',
     'django_crontab',
     'preventconcurrentlogins',
+    'compressor',
 ]
 
 TENANT_APPS = [
@@ -141,6 +141,7 @@ WEASYPRINT_BASEURL = '/'
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+        
         "DIRS": [os.path.join(BASE_DIR, 'templates')],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -213,6 +214,12 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT =  os.path.join(BASE_DIR, 'static')
 
+COMPRESS_ROOT = os.path.join(BASE_DIR, 'static')
+
+COMPRESS_ENABLED = True
+
+STATICFILES_FINDERS = ('compressor.finders.CompressorFinder',)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -226,13 +233,18 @@ SHORT_DATE_FORMAT = 'd/m/Y'
 
 
 
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+# EMAIL_HOST = os.getenv('EMAIL_HOST')
+# EMAIL_PORT = os.getenv('EMAIL_PORT')
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+# 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'hollywoodresthome-co-uk.mail.protection.outlook.com'  # Enter the address of your SMTP server
+EMAIL_PORT = 25
+DEFAULT_FROM_EMAIL = 'accounts@hollywoodresthome.co.uk'
+EMAIL_USE_TLS = True
 
 
 

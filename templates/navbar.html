@@ -1,66 +1,385 @@
-{% load static %}
-<div>
-  <nav class="d-flex flex-row bg-light container-fluid">
-    <div class=''>
-      <a class="p-2 link-underline link-underline-opacity-0 text-black " style="background-color: transparent !important" href="{% url 'index_dashboard' %}">
-        <!-- Replace the h1 tag with the img tag for the logo -->
-       <h1>{{request.tenant.name|capfirst}}</h1>
-        
-      </a>
-  </div>
-    <div class="d-flex justify-content-end highlight w-100">
-      <!-- Add the responsive dropdown button -->
-      <div class="dropdown d-lg-none mt-2 float-end">
-        <a class="btn btn-primary dropdown-toggle  " href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Menu</a>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <a class="dropdown-item border-bottom" href="{% url 'add_client' %}">Add Client</a>
-          <a class="dropdown-item border-bottom" href="{% url 'add_rate' %}">Add Rate</a>
-          <a class="dropdown-item border-bottom" href="{% url 'add_local_authority' %}">Add Local Authority</a>
-          {% if user.is_invoice_department %}
-            <a class="dropdown-item border-bottom" href="{% url 'download_accountants_invoices_csv' %}" role="button">Accountant's Info</a>
-          {% endif %}
-          {% if user.is_invoice_department %}
-            <a class="dropdown-item border-bottom" href="{% url 'all_org_clients' %}" role="button">All Care Homes</a>
-          {% endif %}
-          {% if user.is_invoice_department %}
-            <a class="dropdown-item border-bottom" href="{% url 'register_new_user' %}" role="button">Register User</a>
-          {% endif %}
-          {% if user %}
-            <a class="dropdown-item border-bottom" href="{% url 'logout' %}" role="button">Logout</a>
-          {% endif %}
+ {% load static %}
+<nav
+      class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+      >
+      <div class="px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center justify-start rtl:justify-end">
+            <button
+              data-drawer-target="logo-sidebar"
+              data-drawer-toggle="logo-sidebar"
+              aria-controls="logo-sidebar"
+              type="button"
+              class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+            >
+              <span class="sr-only">Open sidebar</span>
+              <svg
+                class="w-6 h-6"
+                aria-hidden="true"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clip-rule="evenodd"
+                  fill-rule="evenodd"
+                  d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
+                ></path>
+              </svg>
+            </button>
+            <a
+              href="{% url 'index_dashboard' %}"
+              class="flex items-center ms-2 md:me-24"
+            >
+              <img
+                src="{% static 'images/logo.png' %}"
+                class="h-8 me-3 transform hover:rotate-180 hover:scale-120 transition-transform origin-center"
+                alt="Softwarised Logo"
+              />
 
-          <!-- Add more dropdown items as needed -->
-        </div>
-      </div>
+              <span
+                class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
+                >{{request.tenant.name|capfirst}}</span
+              >
+            </a>
+          </div>
+          <div class="flex items-center">
+            <div class="flex items-center ms-3">
+              <div>
+                <button
+                  type="button"
+                  class="flex text-sm p-3 bg-gray-100 text-black rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                  aria-expanded="false"
+                  data-dropdown-toggle="dropdown-user"
+                >
+                  <span class="sr-only">Open user menu</span>
 
-      <!-- Add the navigation links for larger screens -->
-      <div class="d-none d-lg-flex mt-4">
-        <div class="dropdown">
-          <a class="btn btn-primary dropdown-toggle m-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Add
-          </a>
-          <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item border-bottom" href="{% url 'add_client' %}">Client</a>
-            <a class="dropdown-item border-bottom" href="{% url 'add_rate' %}">Rate</a>
-            <a class="dropdown-item border-bottom" href="{% url 'add_local_authority' %}">Local Authority</a>
+                  {{ request.user.first_name|slice:"0:1"|upper }}{{request.user.last_name|slice:"0:1"|upper }}
+                </button>
+              </div>
+              <div
+                class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
+                id="dropdown-user"
+              >
+                <div class="px-4 py-3" role="none">
+                  <p class="text-sm text-gray-900 dark:text-white" role="none">
+                    {{request.user.first_name|capfirst}}
+                    {{request.user.last_name|capfirst}}
+                  </p>
+                  <p
+                    class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+                    role="none"
+                  >
+                    {{request.user.email}}
+                  </p>
+                </div>
+                <ul class="py-1" role="none">
+                  {% if request.user.is_invoice_department %}
+                  <li>
+                    <a
+                      href="{% url 'register_new_user' %}"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                      role="menuitem"
+                      >Register User</a
+                    >
+                  </li>
+                 
+                  {% endif %}
+                  <li>
+                    <a
+                      href="{% url 'logout' %}"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                      role="menuitem"
+                      >Sign out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
-        <div>
-        {% if user.is_invoice_department %}
-          <a class="btn btn-primary  m-2 " href="{% url 'download_accountants_invoices_csv' %}">Accountant's Info</a>
-        {% endif %}
-        {% if user.is_invoice_department %}
-            <a class="btn btn-primary  m-2" href="{% url 'all_org_clients' %}" role="button">All Care Homes</a>
-          {% endif %}
-          
-          {% if user.is_invoice_department %}
-          <a class="btn btn-primary  m-2" href="{% url 'register_new_user' %}" role="button">Register User</a>
-        {% endif %}
-        {% if user %}
-          <a class="btn btn-primary  m-2" href="{% url 'logout' %}" role="button">Logout</a>
-        {% endif %}
-        </div>
       </div>
+    </nav>
+<aside
+  id="logo-sidebar"
+  class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+  aria-label="Sidebar"
+  >
+  <div
+    class="grid grid-cols-1 h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800"
+  >
+    <ul class="space-y-2 font-light">
+      <li>
+        <a
+          href="{% url 'index_dashboard'%}"
+          class="flex items-center p-2 text-gray-900 rounded-lg {% url 'index_dashboard' as dashboard_url %} {% if request.path == dashboard_url %} bg-gray-100 font-medium {% endif %} dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+         
+          <svg  class="w-5 h-5 {% if request.path == dashboard_url %} text-gray-900 {% endif %} text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+          aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/>
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/>
+          </svg>
+           
+          
+          
+          
+          
+          <span class="ms-3">Dashboard</span>
+        </a>
+      </li>
+      {% if user.is_invoice_department %}
+      <li>
+        <a
+          href="{% url 'invoices_list' %}"
+          class="{% url 'invoices_list' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+          <svg
+            class="{% url 'invoices_list' as url %} {% if request.path == url %} text-gray-900 {% endif %}flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z"/>
+        
+          
+          </svg>
+          <span class="flex-1 ms-3 whitespace-nowrap align-top"
+            >Invoices</span
+          >
+        </a>
+      </li>
+      <li>
+        <a
+          href="{% url 'monies_in' %}"
+          class="{% url 'monies_in' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+          <svg
+            class="{% url 'monies_in' as url %} {% if request.path == url %} text-gray-900 {% endif %}flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8H5m12 0a1 1 0 0 1 1 1v2.6M17 8l-4-4M5 8a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.6M5 8l4-4 4 4m6 4h-4a2 2 0 1 0 0 4h4a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1Z"/>
+          </svg>
+          <span class="flex-1 ms-3 whitespace-nowrap align-top"
+            >Allocate Funds</span
+          >
+        </a>
+      </li>
+      {% endif %}
+      <li>
+        <a
+          href="{% url 'clients_attendance' %}"
+          class="flex items-center p-2 text-gray-900 rounded-lg {% url 'clients_attendance' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %} dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+          
+          <svg class="{% url 'clients_attendance' as url %} {% if request.path == url %} text-gray-900 {% endif %}w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 5V4a1 1 0 0 0-1-1H8.914a1 1 0 0 0-.707.293L4.293 7.207A1 1 0 0 0 4 7.914V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5M9 3v4a1 1 0 0 1-1 1H4m11.383.772 2.745 2.746m1.215-3.906a2.089 2.089 0 0 1 0 2.953l-6.65 6.646L9 17.95l.739-3.692 6.646-6.646a2.087 2.087 0 0 1 2.958 0Z"/>
+          </svg>
+          
+            
+          <span class="ms-3">Attendance</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href="{% url 'all_clients_view' %}"
+          class="flex items-center p-2  rounded-lg {% url 'all_clients_view' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %} dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+          
+          <svg class="w-5 h-5 text-gray-500 group-hover:text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+          </svg>
+          
+          
+          <span class="ms-3">Clients</span>
+        </a>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:font-medium hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+          aria-controls="dropdown-example"
+          data-collapse-toggle="dropdown-example"
+        >
+          
+          <svg       class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+          aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.757v8.486M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+          </svg>
+          
+          
+          <span
+            class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap"
+            >Add</span
+          >
+          <svg
+            class="w-3 h-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 4 4 4-4"
+            />
+          </svg>
+        </button>
+        <ul id="dropdown-example" class="{% if 'add' not in request.path  %} hidden {% endif %} py-2 space-y-2">
+
+          <li>
+            <a
+              href="{% url 'add_local_authority' %}"
+              class="{% url 'add_local_authority' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 hover:font-medium dark:text-white dark:hover:bg-gray-700"
+              >Local Authority</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'add_client' %}"
+              class="{% url 'add_client' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 hover:font-medium dark:text-white dark:hover:bg-gray-700"
+              >Client</a
+            >
+          </li>
+
+          <li>
+            <a
+              href="{% url 'add_one_to_one' %}"
+              class="{% url 'add_one_to_one' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 hover:font-medium dark:text-white dark:hover:bg-gray-700"
+              >One To One</a
+            >
+          </li>
+          {% if user.is_invoice_department %}
+          <li>
+            <a
+              href="{% url 'add_money_in' %}"
+              class="{% url 'add_money_in' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 hover:font-medium dark:text-white dark:hover:bg-gray-700"
+              >Money In</a
+            >
+          </li>
+          <li>
+            <a
+              href="{% url 'add_credit_note' %}"
+              class="{% url 'add_credit_note' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 hover:font-medium dark:text-white dark:hover:bg-gray-700"
+              >Credit Note</a
+            >
+          </li>
+          {% endif %}
+
+        </ul>
+      </li>
+      {% if user.is_invoice_department %}
+      
+      <li>
+        <a
+          href="{% url 'download_accountants_invoices_csv' %}"
+          class="{% url 'download_accountants_invoices_csv' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+          
+          <svg    class="{% url 'download_accountants_invoices_csv' as url %} {% if request.path == url %} text-gray-900 {% endif %}flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+          aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.03v13m0-13c-2.819-.831-4.715-1.076-8.029-1.023A.99.99 0 0 0 3 6v11c0 .563.466 1.014 1.03 1.007 3.122-.043 5.018.212 7.97 1.023m0-13c2.819-.831 4.715-1.076 8.029-1.023A.99.99 0 0 1 21 6v11c0 .563-.466 1.014-1.03 1.007-3.122-.043-5.018.212-7.97 1.023"/>
+          </svg>
+          
+          <span class="flex-1 ms-3 whitespace-nowrap"
+            >Accountants Info</span
+          >
+        </a>
+      </li>
+      <hr />
+      <li>
+        <a
+          href="{% url 'all_org_clients' %}"
+          class="{% url 'all_org_clients' as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 hover:font-medium dark:hover:bg-gray-700 group"
+        >
+          
+          <svg class="{% url 'all_org_clients' as url %} {% if request.path == url %} text-gray-900 {% endif %}flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+          aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 9h6m-6 3h6m-6 3h6M6.996 9h.01m-.01 3h.01m-.01 3h.01M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>
+          </svg>
+          
+          <span class="flex-1 ms-3 whitespace-nowrap">All Care Homes</span>
+        </a>
+      </li>
+      
+      <li>
+        <a
+          href="{% url 'amend_care_home' request.tenant.id %}"
+          class="{% url 'amend_care_home' request.tenant.id as url %} {% if request.path == url %} bg-gray-100 font-medium {% endif %}flex items-center p-2 text-gray-900 rounded-lg hover:font-medium dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+        >
+          {% comment %} <svg
+            class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          > {% endcomment %}
+          <svg class="{% url 'amend_care_home' request.tenant.id as url %} {% if request.path == url %} text-gray-900 {% endif %}w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
+          </svg>
+          
+          
+
+          <span class="flex-1 ms-3 whitespace-nowrap">Edit {{request.tenant.name|capfirst}}</span>
+        </a>
+      </li>
+      {% endif %}
+      
+    </ul>
+    <div class="self-end w-full pt-3 border-t grid grid-cols-1">
+      <ul class="space-y-2 font-light">
+        {% comment %} <li>
+          <a
+            href="#"
+            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          >
+            <svg
+              class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m7.4 3.736 3.43 3.429A5.046 5.046 0 0 1 12.133 7c.356.01.71.06 1.056.147l3.41-3.412a2.32 2.32 0 0 1 .451-.344A9.89 9.89 0 0 0 12.268 2a10.022 10.022 0 0 0-5.322 1.392c.165.095.318.211.454.344Zm11.451 1.54-.127-.127a.5.5 0 0 0-.706 0l-2.932 2.932c.03.023.05.054.078.077.237.194.454.41.651.645.033.038.077.067.11.107l2.926-2.927a.5.5 0 0 0 0-.707Zm-2.931 9.81c-.025.03-.058.052-.082.082a4.97 4.97 0 0 1-.633.639c-.04.036-.072.083-.115.117l2.927 2.927a.5.5 0 0 0 .707 0l.127-.127a.5.5 0 0 0 0-.707l-2.932-2.931Zm-1.443-4.763a3.037 3.037 0 0 0-1.383-1.1l-.012-.007a2.956 2.956 0 0 0-1-.213H12a2.964 2.964 0 0 0-2.122.893c-.285.29-.509.634-.657 1.013l-.009.016a2.96 2.96 0 0 0-.21 1 2.99 2.99 0 0 0 .488 1.716l.032.04a3.04 3.04 0 0 0 1.384 1.1l.012.007c.319.129.657.2 1 .213.393.015.784-.05 1.15-.192.012-.005.021-.013.033-.018a3.01 3.01 0 0 0 1.676-1.7v-.007a2.89 2.89 0 0 0 0-2.207 2.868 2.868 0 0 0-.27-.515c-.007-.012-.02-.025-.03-.039Zm6.137-3.373a2.53 2.53 0 0 1-.349.447l-3.426 3.426c.112.428.166.869.161 1.311a4.954 4.954 0 0 1-.148 1.054l3.413 3.412c.133.134.249.283.347.444A9.88 9.88 0 0 0 22 12.269a9.913 9.913 0 0 0-1.386-5.319ZM16.6 20.264l-3.42-3.421c-.386.1-.782.152-1.18.157h-.135c-.356-.01-.71-.06-1.056-.147L7.4 20.265a2.503 2.503 0 0 1-.444.347A9.884 9.884 0 0 0 11.732 22H12a9.9 9.9 0 0 0 5.044-1.388 2.515 2.515 0 0 1-.444-.348ZM3.735 16.6l3.426-3.426a4.608 4.608 0 0 1-.013-2.367L3.735 7.4a2.508 2.508 0 0 1-.349-.447 9.889 9.889 0 0 0 0 10.1 2.48 2.48 0 0 1 .35-.453Zm5.101-.758a4.959 4.959 0 0 1-.65-.645c-.034-.038-.078-.067-.11-.107L5.15 18.017a.5.5 0 0 0 0 .707l.127.127a.5.5 0 0 0 .706 0l2.932-2.933c-.029-.018-.049-.053-.078-.076Zm-.755-6.928c.03-.037.07-.063.1-.1.183-.22.383-.423.6-.609.046-.04.081-.092.128-.13L5.983 5.149a.5.5 0 0 0-.707 0l-.127.127a.5.5 0 0 0 0 .707l2.932 2.931Z"
+              />
+            </svg>
+
+            <span class="ms-3">Support</span>
+          </a>
+        </li> {% endcomment %}
+
+        <li>
+          <a
+            target="_blank"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeZKVuV8jkuELYl33LCCjmgldzf8UQsuJ7o3L_EwMj0n-88Fg/viewform?usp=sf_link"
+            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:font-medium hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          >
+            <svg
+              class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6.616l-2.88 2.592C8.537 20.461 7 19.776 7 18.477V17H5a2 2 0 0 1-2-2V6Zm4 2a1 1 0 0 0 0 2h5a1 1 0 1 0 0-2H7Zm8 0a1 1 0 1 0 0 2h2a1 1 0 1 0 0-2h-2Zm-8 3a1 1 0 1 0 0 2h2a1 1 0 1 0 0-2H7Zm5 0a1 1 0 1 0 0 2h5a1 1 0 1 0 0-2h-5Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+
+            <span class="ms-3">Feedback</span>
+          </a>
+        </li>
+      </ul>
     </div>
-  </nav>
-</div>
+  </div>
+</aside>

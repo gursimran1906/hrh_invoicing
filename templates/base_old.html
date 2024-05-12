@@ -1,0 +1,100 @@
+<!--base.html-->
+{% load compress %} {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Your Page Title{% endblock %}</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+
+    {% compress css %}
+    <link rel="stylesheet" href="{% static 'src/output.css' %}" />
+    {% endcompress %}
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% comment %}
+    <script src="{% static 'js/functions.js' %}"></script>
+    {% endcomment %}
+
+    <script src="{% static 'fontawesomefree/js/fontawesome.js' %}"></script>
+    <script src="{% static 'fontawesomefree/js/solid.js' %}"></script>
+    <script src="{% static 'fontawesomefree/js/brands.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+    <!-- Add your custom styles here if needed -->
+    {% block styles %}{% endblock %}
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
+  </head>
+
+  <body class="d-flex flex-column min-vh-100">
+    {% if request.tenant.on_trial %}
+    <div
+      class="alert alert-warning opacity-75 sticky-top text-center border border-danger pb-2 mb-0"
+      role="alert"
+    >
+      You are currently on trial.
+    </div>
+    {% endif %}
+    <div id="liveAlertPlaceholder"></div>
+    <script>
+      $(document).ready(function () {
+        $.get("/check_subscription/", function (data) {
+          var alertPlaceholder = document.getElementById(
+            "liveAlertPlaceholder"
+          );
+          var wrapper = document.createElement("div");
+          wrapper.innerHTML =
+            '<div class="alert bg-danger-subtle  alert-dismissible fade show fixed-top" role="alert"><strong>Renew!</strong> Your subscription expires on ' +
+            data.paid_until +
+            '.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+          if (data.status === "expired") {
+            alertPlaceholder.append(wrapper);
+          }
+        });
+      });
+    </script>
+    {% include "test.html" %}
+    <!-- Content section -->
+    <div class="container-fluid mt-4">
+      {% block messages %} {% if messages %}
+      <div class="messages">
+        {% for message in messages %} {% if message.tags == 'success' %}
+        <div class="alert alert-success shadow" role="alert">
+          <i class="fa-regular fa-circle-check"></i> {{ message }}
+        </div>
+        {% elif message.tags == 'error' %}
+        <div class="alert alert-danger shadow" role="alert">
+          <i class="fa-regular fa-triangle-exclamation"></i> {{ message }}
+        </div>
+        {% else %}
+        <!-- Handle other message levels if needed -->
+        <div class="alert alert-info shadow" role="alert">
+          <i class="fa-regular fa-triangle-exclamation"></i> {{ message }}
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+      {% endif %} {% endblock %} {% block container %}{% endblock %}
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+
+    {% include "footer.html" %}
+  </body>
+</html>
