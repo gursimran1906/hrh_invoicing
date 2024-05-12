@@ -88,8 +88,7 @@ def download_all_clients_data(request):
 
     response = HttpResponse(content_type='text/csv')
     today = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
-    response['Content-Disposition'] = f'attachment; filename="all_clients_including_previous-{
-        today}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="all_clients_including_previous-{today}.csv"'
 
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
@@ -114,8 +113,7 @@ def download_current_clients_data(request):
 
     response = HttpResponse(content_type='text/csv')
     today = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
-    response['Content-Disposition'] = f'attachment; filename="current_clients_{
-        today}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="current_clients_{today}.csv"'
 
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
@@ -450,8 +448,7 @@ def edit_invoice(request, invoice_number):
         form = InvoiceForm(request.POST, instance=invoice)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Invoice {
-                             invoice_number} successfully updated!')
+            messages.success(request, f'Invoice {invoice_number} successfully updated!')
             return redirect('invoices_list')
         else:
 
@@ -620,8 +617,7 @@ def unallocated_money_in(request):
 
     options = []
     for invoice in invoices_objects:
-        options.append(f'<option value="{invoice.invoice_number}">{
-                       invoice.invoice_number} - ({invoice.client.payable_by}) Client: {invoice.client}</option>')
+        options.append(f'<option value="{invoice.invoice_number}">Inv:{invoice.invoice_number} - ({invoice.client.payable_by if invoice.client.payable_by else 'Private Funded'}) Client: {invoice.client}</option>')
 
     # Join the options and mark it as safe
     options_html = mark_safe('\n'.join(options))
@@ -750,8 +746,7 @@ def generate_monthly_attendance_chart(request, month_year):
     buffer.seek(0)
 
     response = HttpResponse(buffer.read(), content_type='image/png')
-    response['Content-Disposition'] = f'attachment; filename="Bed_Occupancy_Chart_{
-        month_year_date.strftime("%B %Y")}.png"'
+    response['Content-Disposition'] = f'attachment; filename="Bed_Occupancy_Chart_{month_year_date.strftime("%B %Y")}.png"'
 
     return response
 
@@ -931,8 +926,7 @@ def mark_clients_attendance(request):
                         client=client, date=date_obj, present=present)
                     count += 1
             except ValueError as e:
-                messages.error(request, f'Attendance not marked. {
-                               key, value}. Error:{str(e)}')
+                messages.error(request, f'Attendance not marked. {key, value}. Error:{str(e)}')
 
         messages.success(
             request, f'Attendance successfully marked {count} times.')
@@ -956,8 +950,7 @@ def general_invoices(request):
             return redirect('invoices_list')
     except Exception as e:
         messages.error(
-            request, f'An error was encountered. \
-                Please contact your adminsistrators and send them a photo of this message. Error: {e}')
+            request, f'An error was encountered. Please contact your adminsistrators and send them a photo of this message. Error: {e}')
     return redirect('invoices_list')
 
 @login_required
@@ -1057,8 +1050,7 @@ def send_monthly_invoices(request):
             Q(date__range=(first_day_of_month, last_day_of_month))
         )
         if not existing_invoices.exists():
-            messages.error(request, f'No invoices to send for {
-                           month_year_date.strftime("%B %Y")}')
+            messages.error(request, f'No invoices to send for {month_year_date.strftime("%B %Y")}')
             return redirect('invoices_list')
 
         all_emails_sent = False
@@ -1081,18 +1073,15 @@ def send_monthly_invoices(request):
                         all_emails_sent = True
                         invoice.save()
                 except Exception as e:
-                    messages.error(request, f'Error in sending invoice {
-                                   invoice.invoice_number}')
+                    messages.error(request, f'Error in sending invoice {invoice.invoice_number}')
             else:
                 all_emails_sent = False
                 invoices_failed.append(invoice.invoice_number)
         connection.close()
         if all_emails_sent:
-            messages.success(request, f'Invoices for {
-                             month_year_date.strftime("%B %Y")} successfully sent.')
+            messages.success(request, f'Invoices for {month_year_date.strftime("%B %Y")} successfully sent.')
         else:
-            messages.error(request, f'Invoices {invoices_failed} of month {
-                           month_year_date.strftime("%B %Y")} already sent to clients')
+            messages.error(request, f'Invoices {invoices_failed} of month {month_year_date.strftime("%B %Y")} already sent to clients')
     except Exception as e:
         connection.close()
         messages.error(
@@ -1137,24 +1126,20 @@ def download_all_invoices(request):
 
                 except Exception as e:
                     invoices_failed.append(invoice.invoice_number)
-                    messages.error(request, f'Error in generating invoice {
-                                   invoice.invoice_number}')
+                    messages.error(request, f'Error in generating invoice {invoice.invoice_number}')
 
             if invoices_failed:
-                messages.error(request, f'Error in generating invoices: {
-                               invoices_failed}')
+                messages.error(request, f'Error in generating invoices: {invoices_failed}')
 
         # Prepare the response
         mem_zip.seek(0)
         response = HttpResponse(mem_zip.read(), content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename="invoices_{
-            month_year_date.strftime("%Y-%m")}.zip'
+        response['Content-Disposition'] = f'attachment; filename="invoices_{month_year_date.strftime("%Y-%m")}.zip'
 
         return response
 
     except Exception as e:
-        messages.error(
-            request, f'An error was encountered. Please contact your administrators and send them a photo of this message. Error: {e}')
+        messages.error(request, f'An error was encountered. Please contact your administrators and send them a photo of this message. Error: {e}')
 
     return redirect('invoices_list')
 
@@ -1316,10 +1301,8 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user, tenant):
 
 def send_invoice_email(invoice_number, recipient_email, month_year, auth_user, tenant):
     try:
-        subject = f'{tenant.name.capitalize(
-        )} - Invoice for {month_year.strftime("%B %Y")}'
-        message = f'Dear Sirs,\n\nPlease find attached our invoice for {
-            month_year.strftime("%B %Y")}.\n\nKind regards,\n{tenant.name.capitalize()}'
+        subject = f'{tenant.name.capitalize()} - Invoice for {month_year.strftime("%B %Y")}'
+        message = f'Dear Sirs,\n\nPlease find attached our invoice for {month_year.strftime("%B %Y")}.\n\nKind regards,\n{tenant.name.capitalize()}'
 
         pdf_content = make_pdf_of_invoice(
             invoice_number, True, auth_user, tenant)
