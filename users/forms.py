@@ -19,17 +19,18 @@ class CustomPasswordResetForm(PasswordResetForm):
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = UserCreationForm.Meta.fields + ('is_invoice_department','email',)
+        fields = ('first_name', 'last_name', 'is_invoice_department',
+                  'email',) + UserCreationForm.Meta.fields
 
     def save(self, commit=True, tenant=None):
         user = super().save(commit=False)
-        
+
         if tenant:
             user.tenant = tenant
 
         if commit:
             user.save()
-        
+
         return user
 
     def __init__(self, *args, **kwargs):
@@ -37,4 +38,3 @@ class CustomUserCreationForm(UserCreationForm):
 
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
-
