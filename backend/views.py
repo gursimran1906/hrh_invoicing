@@ -1068,9 +1068,14 @@ def send_monthly_invoices(request):
         for invoice in existing_invoices:
             if invoice.sent_to_client == False:
                 try:
+
+                    sent = send_invoice_email(invoice.invoice_number,invoice.client.email, month_year_date,request.user, request.tenant)
+                    messages.error(request, f'Error {sent}')
+
                     sent = send_invoice_email(
                         invoice.invoice_number, invoice.client.email, month_year_date, request.user, request.tenant)
                     print(sent)
+
                     if sent == True:
                         invoice.sent_to_client = True
                         all_emails_sent = True

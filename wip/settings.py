@@ -249,8 +249,6 @@ EMAIL_USE_TLS = True
 
 
 
-
-
 CRONJOBS = [
     ('0 15 * * *', 'backend.cron.daily_check_for_unmarked_attendance')
 ]
