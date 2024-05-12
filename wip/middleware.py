@@ -12,7 +12,7 @@ class CheckPaidPeriodMiddleware(TenantMainMiddleware):
         if not hasattr(request, 'tenant'):
             return
 
-        # Get the current tenant from the request
+        
         tenant = get_tenant_model().objects.get(schema_name=request.tenant.schema_name)
 
         if not tenant.paid_until >= timezone.now().date() and not tenant.on_trial:

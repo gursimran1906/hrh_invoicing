@@ -15,6 +15,7 @@ class Client(TenantMixin):
     bank_account_no=models.IntegerField() 
     bank_sort_code=models.CharField(max_length=100)
     invoice_footer = models.TextField()
+    one_to_one_rate_hourly = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_on = models.DateField(auto_now_add=True)
     auto_create_schema = True
 

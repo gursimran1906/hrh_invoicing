@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Edit Care Home{% endblock %}
+{% block container %}
+<div class="p-4 bg-white rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4">Amend Care Home Details</h2>
+    <form method="post" action="{% url 'amend_care_home' id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+      <button type="submit" class="mt-2 text-center text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg border text-sm px-2 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-600 focus:outline-none dark:focus:ring-blue-800">Save Changes</button>
+
+        
+</div>
+{% endblock %}

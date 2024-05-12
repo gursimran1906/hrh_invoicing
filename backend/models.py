@@ -1,17 +1,20 @@
 from django.db import models
 from datetime import date
-from simple_history.models import HistoricalRecords
 
 
 
 
+import os
+from django.utils import timezone
 
-class Room(models.Model):
-    id = models.AutoField(primary_key=True)
-    is_shared = models.BooleanField(default=False)
-    history = HistoricalRecords()
-    def __str__(self):
-        return str(self.id)
+
+
+# class Room(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     is_shared = models.BooleanField(default=False)
+    
+#     def __str__(self):
+#         return str(self.id)
 
 class LocalAuthority(models.Model):
     id = models.AutoField(primary_key=True)
@@ -21,18 +24,10 @@ class LocalAuthority(models.Model):
     contact_number = models.CharField(max_length=20)
     hide_client_deatils = models.BooleanField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()
+    
     def __str__(self):
         return f'{self.name} - {self.address}'
 
-class Rate(models.Model):
-    id = models.AutoField(primary_key=True)
-    description = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()
-    def __str__(self):
-        return f'{self.description} - £{self.amount}'
 
 class Client(models.Model):
     CLIENT_TYPE_CHOICES = {
@@ -47,20 +42,41 @@ class Client(models.Model):
     date_joined = models.DateField()
     date_left = models.DateField(null=True, blank=True)
     email = models.EmailField()
-    client_types = models.CharField(max_length=20,
+    client_type = models.CharField(max_length=20,
         choices=CLIENT_TYPE_CHOICES,
         default='private_funded') 
-    client_agreed_rate = models.ForeignKey(Rate, on_delete=models.CASCADE, null=True)
-    allotted_room = models.ForeignKey(Room, on_delete=models.CASCADE, null=True, blank=True)
+    rates = models.JSONField()
+    
+    # allotted_room = models.ForeignKey(Room, on_delete=models.CASCADE, null=True, blank=True)
     payable_by = models.ForeignKey(LocalAuthority, on_delete=models.CASCADE, null=True, blank=True)
-    resident_name_number = models.CharField(max_length=255)
+    resident_name_number = models.CharField(max_length=255, null=True, blank=True)
     respite = models.BooleanField(null=True)
     notes = models.TextField(null=True)
     
     timestamp = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()
+    
     def __str__(self):
         return f'{self.name} - {self.address}'
+
+class ContractDocument(models.Model):
+    id = models.AutoField(primary_key=True)
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
+    document = models.FileField(upload_to='contracts/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Contract Document for {self.client.name}'
+
+    def save(self, *args, **kwargs):
+        
+        original_file_name = str(self.document)
+        
+        timestamp = timezone.now().strftime('%Y_%m_%d_%H%M%S')
+        new_file_name = f'{timestamp}_{original_file_name}'
+        
+        self.document.name = new_file_name
+        
+        super().save(*args, **kwargs)
 
 class OneToOneAgency(models.Model):
     id = models.AutoField(primary_key=True)
@@ -73,7 +89,7 @@ class OneToOne(models.Model):
     date = models.DateField(null=True, blank=True)
     hours = models.DecimalField(max_digits=10, decimal_places=2)
     customer = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
-    history = HistoricalRecords()
+    
 
    
     
@@ -89,7 +105,7 @@ class MoneyIn(models.Model):
     date = models.DateField()
     invoices_to_allocate = models.ManyToManyField('Invoice', related_name='monies_in', blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()
+    
     def save(self, *args, **kwargs):
         if self.balance_left is None:
             self.balance_left = self.amount
@@ -99,17 +115,17 @@ class Invoice(models.Model):
     invoice_number = models.AutoField(primary_key=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
     date = models.DateField(default=date.today)
-    desc = models.ForeignKey(Rate,on_delete=models.CASCADE, null=True)
+    desc = models.CharField(max_length=255, blank=True,null=True)
     costs = models.DecimalField(max_digits=10, decimal_places=2)
     units = models.IntegerField(default=1)
     settled = models.BooleanField(default=False)
     sent_to_client = models.BooleanField(default=False)
     additional_notes = models.CharField(max_length=255, blank=True,null=True)
+    amount_allocated = models.DecimalField(max_digits=10,decimal_places=2)
     timestamp = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()
+    
     def __str__(self):
         return str(self.invoice_number)
-
 
 class CreditNote(models.Model):
     id = models.AutoField(primary_key=True)
@@ -117,7 +133,7 @@ class CreditNote(models.Model):
     invoice_to_allocate = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     notes = models.CharField(null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()
+    
 
     def is_invoice_settled(self):
         return self.invoice_to_allocate.settled  
@@ -141,7 +157,7 @@ class Attendance(models.Model):
     date = models.DateField(default=date.today)
     present = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()
+    
     def __str__(self):
         return f'{self.client.name} - {self.date} - Present: {self.present}'
          

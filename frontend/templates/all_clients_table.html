@@ -4,39 +4,64 @@
 
 {% block container %}
 
-<div class="table-responsive">
-    <div>
-    <a class='btn btn-primary float-end m-2' href="{% url 'download_current_clients'%}">Dowload Current Clients</a>
-    <a class='btn btn-primary float-end m-2' href="{% url 'download_all_clients'%}">Dowload all Clients</a>
-    <h2 class='text-center m-2'>All Clients</h2>
+{% if clients %}
+<div class="mt-2 mb-3 grid grid-cols-1 justify-items-end">
+    <div class="mb-4 justify-self-end bg-white rounded-lg shadow p-4  ">
+        <h3 class=" text-center mb-2 text-xl w-full">Actions</h3>
+        <a class="text-center text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg border text-sm px-2 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-600 focus:outline-none dark:focus:ring-blue-800"
+        href="{% url 'download_current_clients'%}">Dowload Current Clients</a>
+        <a class=" py-2 px-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border  hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+        href="{% url 'download_all_clients'%}">Dowload all Clients</a>
     </div>
-    <table class='table table-striped '>
-        <thead>
+</div>
+<div class="relative overflow-x-auto shadow sm:rounded-lg">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 {% for key in clients.0.keys %}
                     {% if key != 'id' %}
-                        <th>{{ key|capfirst }}</th>
+                        <th scope="col" class="px-6 py-3 {% if key == 'name' %}bg-gray-50 border-e sticky left-0{% endif %}">{{ key|capfirst }}</th>
                     {% endif %}
                 {% endfor %}
             </tr>
+            
         </thead>
         <tbody>
             {% for obj in clients %}
-                <tr>
+                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
                     {% for key, value in obj.items %}
                         {% if key != 'id' %}
                             {% if value|date %}
-                                <td>{{ value|date:"d-m-Y" }}</td>
+                                <td class="px-6 py-4 ">{{ value|date:"d-m-Y" }}</td>
                             {% else %}
-                                <td>{{ value }}</td>
+                                <td class="px-6 py-4 {% if key == 'name' %}bg-gray-50 border-e sticky left-0{% endif %}">
+                                {% if value|length > 75 and key == 'rates' %}
+                                        <div id="truncated-text-{{obj.id}}" class="">{{ value|slice:":75" }} ...</div>
+                                        <div id="full-text-{{obj.id}}" style="display:none;">{{ value }}</div>
+                                        <button id="more-button-{{obj.id}}" class="text-blue-600 hover:text-blue-800 hover:underline" onclick="toggleMore({{obj.id}});">Show All</button>
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                                </td>
                             {% endif %}
                         {% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}
+            
         </tbody>
     </table>
 </div>
 
 
-        {% endblock %}
+
+    
+{% else%} 
+<div
+      class="mt-4 p-4 mb-4 border  text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+      role="alert"
+    >
+      <span class="font-medium">No Clients on the system, please add from the sidebar.</span>
+    </div>
+    {% endif %}
+    {% endblock %}

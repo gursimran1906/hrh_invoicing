@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import Room, LocalAuthority, Client, Invoice, Rate, MoneyIn, OneToOne, OneToOneAgency, Attendance, CreditNote
-from simple_history.admin import SimpleHistoryAdmin
+from .models import  LocalAuthority, Client, Invoice,  MoneyIn, OneToOne, OneToOneAgency, Attendance, CreditNote
 
 
-@admin.register(Room)
-class RoomAdmin(admin.ModelAdmin):
-    list_display = ('id', 'is_shared')
+
+# @admin.register(Room)
+# class RoomAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'is_shared')
 
 @admin.register(Attendance)
 class AttendaceAdmin(admin.ModelAdmin):
@@ -19,7 +19,7 @@ class LocalAuthorityAdmin(admin.ModelAdmin):
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'address', 'contact_number', 'date_joined', 'date_left', 'email',
-                    'client_types', 'client_agreed_rate',  'allotted_room', 'payable_by',
+                    'client_type', 'rates',  'payable_by',
                     'resident_name_number', 'timestamp')
 
 
@@ -32,9 +32,9 @@ class CreditNoteAdmin(admin.ModelAdmin):
     list_display = ('id', 'amount', 'invoice_to_allocate','notes', 'timestamp')
 
 
-@admin.register(Rate)
-class RateAdmin(admin.ModelAdmin):
-    list_display = ('id', 'description', 'amount', 'timestamp')
+# @admin.register(Rate)
+# class RateAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'description', 'amount', 'timestamp')
 
 @admin.register(MoneyIn)
 class MoneyInAdmin(admin.ModelAdmin):
