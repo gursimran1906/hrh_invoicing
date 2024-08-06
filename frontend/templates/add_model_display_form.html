@@ -11,13 +11,13 @@
         <div class='flex'>
         <input placeholder='Description' name='daily_rate_desc' class="me-2 shadow-sm mb-2 mt-1 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-100 focus:border-blue-100 block w-50 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         <input placeholder='Amount' name="daily_rate_amount" class=" shadow-sm mb-2 mt-1 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-100 focus:border-blue-100 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-        aria-describedby="contract_help" id="contract" type="number">
+        aria-describedby="contract_help" id="contract" type="number" step="0.0001">
         </div>
 
-        <label class="mb-1 text font-medium text-gray-900 dark:text-white" for="contract">Upload Contract:</label>
+        {% comment %} <label class="mb-1 text font-medium text-gray-900 dark:text-white" for="contract">Upload Contract:</label>
         <input name="contract_document" class=" w-full text-sm text-gray-900 border rounded border-gray-300 cursor-pointer bg-white dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="contract_help" id="contract" type="file">
         <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="contract_help">Contract signed and agreed with the authority or client.</div>
-      
+       {% endcomment %}
     {% endif %}
       <button type="submit" class="mt-2 text-center text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg border text-sm px-2 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-600 focus:outline-none dark:focus:ring-blue-800">Submit</button>
     </form>
@@ -61,8 +61,8 @@
                                         <td class="px-6 py-4 {% if forloop.first %}bg-gray-50 border-e sticky left-0{% endif %}">{{ value|date:"d-m-Y" }}</td>
                                     {% else %}
                                         <td class="px-6 py-4 {% if forloop.first %}bg-gray-50 border-e sticky left-0{% endif %}">
-                                        {% if value|length > 100 and key == 'rates' %}
-                                            <div id="truncated-text-{{obj.id}}" class="">{{ value|slice:":100" }} ...</div>
+                                        {% if value|length > 75 and key == 'rates' %}
+                                            <div id="truncated-text-{{obj.id}}" class="">{{ value|slice:":75" }} ...</div>
                                             <div id="full-text-{{obj.id}}" style="display:none;">{{ value }}</div>
                                             <button id="more-button-{{obj.id}}" class="text-blue-600 hover:text-blue-800 hover:underline" onclick="toggleMore({{obj.id}});">Show All</button>
                                         {% else %}
@@ -82,30 +82,7 @@
     
 </div>
 </div>
-<script>
-   
 
-    function toggleMore(id) {
-        const moreButton = document.getElementById("more-button-"+id)
-        const fullText = document.getElementById("full-text-"+id);
-        const truncatedText = document.getElementById("truncated-text-"+id);
-
-        
-
-        if (moreButton.innerText == 'Show All') {
-            fullText.style.display = 'block';
-            truncatedText.style.display='none';
-            moreButton.innerText = "Show Less";
-            
-        } else {
-            fullText.style.display = 'none';
-            truncatedText.style.display='block';
-            moreButton.innerText = "Show All";
-        }
-    }
-       
-  
-</script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const clientTypeField = document.querySelector("#id_client_type");

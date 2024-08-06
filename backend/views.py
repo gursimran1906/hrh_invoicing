@@ -62,10 +62,10 @@ def test(request):
 @login_required
 def all_clients_view(request):
 
-    clients = Client.objects.all().order_by('-date_joined').values('id', 'name', 'date_of_birth', 'address', 'contact_number',
+    clients = Client.objects.all().order_by('name').values('id', 'name', 'date_of_birth', 'address', 'contact_number',
                                                                    'date_joined', 'date_left', 'email', 'client_type',
                                                                    'rates',
-                                                                   'payable_by__name', 'respite', 'notes', 'timestamp')
+                                                                   'payable_by__name', 'resident_name_number','respite', 'notes', 'timestamp')
 
     for client in clients:
         client_view_url = reverse('client_view', args=[client['id']])
@@ -73,7 +73,7 @@ def all_clients_view(request):
         rates = json.loads(client['rates']) if type(client['rates']) == type('') else client['rates']
         rates_html = ''
         for rate in rates:  
-            rates_html = rates_html + f'Desc: {rate['description']}, Amount: £{rate['amount']}, Status: {rate['status']}<br><br>'
+            rates_html = rates_html + f'Desc: {rate["description"]}, Amount: £{rate["amount"]}, Status: {rate["status"]}<br><br>'
         client['rates'] = mark_safe(rates_html)
         client['name'] = mark_safe(
             f'<a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="{client_view_url}">{client_name}</a>')
@@ -96,7 +96,7 @@ def download_all_clients_data(request):
         'id', 'name', 'date_of_birth', 'address', 'contact_number',
         'date_joined', 'date_left', 'email', 'client_type',
         'rates',
-        'payable_by', 'respite', 'notes',]
+        'payable_by', 'resident_name_number','respite', 'notes',]
 
     clients = Client.objects.all().order_by('date_joined').prefetch_related(
         'payable_by')
@@ -121,7 +121,7 @@ def download_current_clients_data(request):
         'id', 'name', 'date_of_birth', 'address', 'contact_number',
         'date_joined', 'email', 'client_type',
         'rates',
-       
+       'resident_name_number',
         'payable_by', 'respite', 'notes',]
 
     clients = Client.objects.filter(date_left__isnull=True).order_by(
@@ -138,8 +138,7 @@ def download_current_clients_data(request):
 def download_all_one_to_ones(request):
     response = HttpResponse(content_type='text/csv')
     today = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
-    response['Content-Disposition'] = f'attachment; filename="all_one_to_ones_{
-        today}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="all_one_to_ones_{today}.csv"'
 
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
@@ -166,8 +165,7 @@ def download_this_months_one_to_ones(request):
     response = HttpResponse(content_type='text/csv')
     today = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
     month = datetime.now().strftime('%m-%Y')
-    response['Content-Disposition'] = f'attachment; filename="{
-        month}_one_to_ones_{today}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="{month}_one_to_ones_{today}.csv"'
 
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
@@ -221,7 +219,7 @@ def client_view(request, client_id):
     if request.user.is_invoice_department:
         return render(request, 'client_home.html', context)
     else:
-        messages.error(request, "No contract document saved for this client.")
+        messages.error(request, "You do not have correct level of permissions to access requested page. Please contact your manager.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
@@ -276,7 +274,7 @@ def add_client(request):
             payable_by_name=F('payable_by__name'),
             
             resident_ref=F('resident_name_number')
-        ).order_by('date_joined').values('name', 'address', 'rates','payable_by_name', 'client_type','contact_number', 'date_joined', 'email',
+        ).order_by('name').values('name', 'address', 'rates','payable_by_name', 'client_type','contact_number', 'date_joined', 'email',
                                                 'client_type',  
                                                 'resident_ref', 'respite', 'id'
         
@@ -289,14 +287,14 @@ def add_client(request):
             rates = json.loads(client['rates']) if type(client['rates']) == type('') else client['rates']
             rates_html = ''
             for rate in rates:  
-                rates_html = rates_html + f'Desc: {rate['description']}, Amount: £{rate['amount']}, Status: {rate['status']}<br><br>'
+                rates_html = rates_html + f'Desc: {rate["description"]}, Amount: £{rate["amount"]}, Status: {rate["status"]}<br><br>'
 
             
             client['rates'] = mark_safe(rates_html)
             client['name'] = mark_safe(
                 f'<a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="{client_view_url}">{client_name}</a>')
             edit_client_url = reverse('edit_client', args=[client['id']])
-            client['Contract'] = mark_safe(f'<a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="{download_contract_url}">Dowload Contract</a>')
+            # client['Contract'] = mark_safe(f'<a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="{download_contract_url}">Dowload Contract</a>')
             client['edit'] = mark_safe(f'<a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" href="{edit_client_url}">Edit</a>')
 
     return render(request, 'add_model_display_form.html', {'form': form, 'title': 'Client', 'objects': client_objects})
@@ -499,24 +497,32 @@ def edit_client(request, id):
             document.save()
             
             rates_prev = json.loads(client.rates) if type(client.rates) == type('ss') else client.rates
-            rates_len_prev = len(rates_prev) - 1 
+            rates_len_prev = len(rates_prev) 
             total_sub_rates_forms = request.POST['form-TOTAL_FORMS']
+            print(request.POST)
             rates=[]
-            
-
-            for i in range(rates_len_prev, int(total_sub_rates_forms)):
+            # if rates_len_prev != int(total_sub_rates_forms):
                 
+            #     for i in range(rates_len_prev, int(total_sub_rates_forms)):
+            #         amount = request.POST[f'form-{i}-amount']
+            #         status = request.POST[f'form-{i}-status']
+            #         description = request.POST[f'form-{i}-description']
+                    
+            #         rates.append({'amount':amount,'status':status, 'description':description})
+            #     for rate in rates_prev:
+            #         rate['status'] = 'inactive'
+            rates=[]
+            for i in range(int(total_sub_rates_forms)):
                 amount = request.POST[f'form-{i}-amount']
                 status = request.POST[f'form-{i}-status']
                 description = request.POST[f'form-{i}-description']
                 
                 rates.append({'amount':amount,'status':status, 'description':description})
-            for rate in rates_prev:
-                rate['status'] = 'inactive'
-            rates_prev.extend(rates)
-            client.rates = json.dumps(rates_prev)
+
+            
+            client.rates = json.dumps(rates)
             client.save()
-            messages.success(request, 'Client datasuccessfully updated!')
+            messages.success(request, 'Client data successfully updated!')
             return redirect('all_clients_view')
         else:
             messages.error(request, "Form submission failed. Please check the errors.")
@@ -532,7 +538,7 @@ def edit_client(request, id):
     return render(request, 'edit_models.html', {
         'form': client_form,
         'document_form': document_form,
-        'contract_documents': contract_documents,
+        # 'contract_documents': contract_documents,
         'title': 'Client'
     })
 
@@ -692,7 +698,7 @@ def get_attendance_data(request):
                     for entry in presents_per_day}
     data = [present_data.get(d, 0) for d in all_dates]
 
-    labels = [date.strftime('%d-%m-%Y') for date in all_dates],
+    labels = [date.strftime('%d/%m') for date in all_dates],
 
     return JsonResponse({
         "title": f"Bed Occupancy Chart",
@@ -809,7 +815,7 @@ def generate_monthly_attendance_table(request, month_year):
                 </tr>
             </thead>
             <tbody>
-                {''.join([f'<tr><td>{client['client']}</td>{''.join([f'<td>{status}</td>' for status in client['attendance']])}</tr>' for client in attendance_data])}
+                {"".join([f'<tr><td>{client['client']}</td>{"".join([f"<td>{status}</td>" for status in client['attendance']])}</tr>' for client in attendance_data])}
             </tbody>
         </table>
     </body>
@@ -818,8 +824,7 @@ def generate_monthly_attendance_table(request, month_year):
 
     # Create a response with PDF mime type
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=monthly_attendance_{
-        month_year_date.strftime("%B_%Y")}.pdf'
+    response['Content-Disposition'] = f'attachment; filename=monthly_attendance_{month_year_date.strftime("%B_%Y")}.pdf'
 
     # Generate PDF using WeasyPrint and write it to the response
     HTML(string=html_content).write_pdf(response)
@@ -873,7 +878,7 @@ def clients_attendance(request):
             Q(date_joined__lte=last_day_of_month) & (
                 Q(date_left__isnull=True) | (
                     Q(date_left__gte=first_day_of_month) & Q(date_left__lte=last_day_of_month)))
-        ).values()
+        ).order_by('name').values()
 
         attendance_data = []
 
@@ -898,6 +903,41 @@ def clients_attendance(request):
     else:
         return render(request, 'attendance.html')
 
+# @login_required
+# def mark_clients_attendance(request):
+#     if request.method == 'POST':
+#         try:
+#             count = 0
+#             for key, value in request.POST.items():
+#                 if key == 'csrfmiddlewaretoken':
+#                     continue
+#                 try:
+#                     client_id, raw_date = key.split('/')
+
+#                     client = Client.objects.get(pk=client_id)
+
+#                     date_obj = datetime.strptime(raw_date, "%B %d, %Y").date()
+
+#                     present = value == 'on'
+
+#                     existing_attendance = Attendance.objects.filter(
+#                         client=client, date=date_obj).first()
+
+#                     if existing_attendance:
+#                         existing_attendance.present = present
+#                         existing_attendance.save()
+#                     else:
+#                         Attendance.objects.create(
+#                             client=client, date=date_obj, present=present)
+#                         count += 1
+#                 except ValueError as e:
+#                     return JsonResponse({'success': False, 'message': f'Attendance not marked. {key, value}. Error: {str(e)}'})
+
+#             return JsonResponse({'success': True, 'message': f'Attendance successfully marked {count} times.'})
+#         except Exception as e:
+#             return JsonResponse({'success': False, 'message': f'An error occurred: {str(e)}'})
+
+#     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
 @login_required
 def mark_clients_attendance(request):
@@ -1002,20 +1042,21 @@ def generate_monthly_invoices(request):
                 amount_allocated=0.00,
                 costs=total_cost,
                 units=attendance_count,
+                rate=round(Decimal(active_rate['amount']),4)
             )
 
         clients_with_one_to_one = Client.objects.filter(
             onetoone__date__range=(first_day_of_month, last_day_of_month)).distinct()
-        one_to_one_rate = 0.00
-
+        one_to_one_rate = request.tenant.one_to_one_rate_hourly
+       
         for client in clients_with_one_to_one:
             # Calculate total hours for the current month
             total_hours = OneToOne.objects.filter(customer=client, date__range=(
                 first_day_of_month, last_day_of_month)).aggregate(Sum('hours'))['hours__sum'] or 0
 
             # Calculate total cost based on total hours and rate (assuming client has a rate field)
-            total_cost = total_hours * one_to_one_rate.amount
-
+            total_cost = total_hours * one_to_one_rate
+            
             # Create OneToOne Invoice
             invoice = Invoice.objects.create(
                 client=client,
@@ -1023,7 +1064,8 @@ def generate_monthly_invoices(request):
                 desc=one_to_one_rate,
                 costs=total_cost,
                 units=total_hours,
-
+                rate=one_to_one_rate,
+                amount_allocated=0.00,
             )
 
         messages.success(request, f'Invoices for {month_year_date.strftime("%B %Y")} successfully generated.')
@@ -1102,8 +1144,7 @@ def download_all_invoices(request):
             Q(date__range=(first_day_of_month, last_day_of_month))
         )
         if not existing_invoices.exists():
-            messages.error(request, f'No invoices to download for {
-                           month_year_date.strftime("%B %Y")}')
+            messages.error(request, f'No invoices to download for { month_year_date.strftime("%B %Y")}')
             return redirect('invoices_list')
 
         mem_zip = BytesIO()
@@ -1115,8 +1156,7 @@ def download_all_invoices(request):
                     # Replace with your function to generate PDFs
                     invoice_file = make_pdf_of_invoice(
                         invoice.invoice_number, False, request.user, request.tenant)
-                    invoice_file_name = f"Invoice_ {
-                        invoice.invoice_number}.pdf"
+                    invoice_file_name = f"Invoice_{invoice.invoice_number}.pdf"
                     zf.writestr(invoice_file_name, invoice_file)
 
                 except Exception as e:
@@ -1162,7 +1202,16 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user, tenant):
                         <div class="col-4 ">
                             <h1 class='float-right'>Invoice</h1>
                         </div>
-                    </div>
+                    </div>'''
+    
+    if invoice.settled:
+        html_content = html_content + f'''
+            <div class="mt-5">
+                <h1 class='float-right p-4 border text-danger '>Settled</h1>
+             </div>
+        '''
+                        
+    html_content = html_content + '''
                     <div class='mt-5 w-25 mb-5'>
                         <table class="table table-bordered">
                             <tr>
@@ -1189,7 +1238,7 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user, tenant):
     else:
         html_content += f''' <p class='col'><strong>Client:</strong> {
             invoice.client.name} </p>'''
-    rate = invoice.costs / invoice.units
+    
     html_content += f'''
                           <p class='col'><strong>Date:</strong> {invoice.date.strftime("%d/%m/%Y")}</p>
                            <p class='col'><strong>Invoice No:</strong> {invoice.invoice_number}</p>
@@ -1209,7 +1258,7 @@ def make_pdf_of_invoice(invoice_number, hide_client_details, user, tenant):
                             <tr>
                                 <td>{invoice.desc}</td>
                                 <td>{invoice.units}</td>
-                                <td>{rate}</td>
+                                <td>{invoice.rate}</td>
                                 <td>{invoice.costs}</td>
                             </tr>
 
@@ -1316,8 +1365,7 @@ def send_invoice_email(invoice_number, recipient_email, month_year, auth_user, t
 def download_invoice(request, invoice_number):
     # Create a response object with PDF content type
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=invoice_{
-        invoice_number}.pdf'
+    response['Content-Disposition'] = f'attachment; filename=invoice_{invoice_number}.pdf'
     pdf_content = make_pdf_of_invoice(
         invoice_number, False, request.user, request.tenant)
 
@@ -1454,22 +1502,22 @@ def download_invoice_accountants_csv(request):
         invoices = Invoice.objects.filter(date__gte=date_from)
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="invoices_from_{
-            date_from}.csv"'
+        response['Content-Disposition'] = f'attachment; filename="invoices_from_{date_from}.csv"'
 
         writer = csv.writer(response)
         # Write header row
         writer.writerow(['Invoice Number', 'Client', 'Date', 'Description', 'Costs',
-                        'Units', 'Settled', 'Sent to Client', 'Additional Notes', 'Timestamp'])
+                        'Units', 'Rate','Settled', 'Sent to Client', 'Additional Notes', 'Timestamp'])
 
         for invoice in invoices:
             writer.writerow([
                 invoice.invoice_number,
                 invoice.client.name,
                 invoice.date,
-                invoice.desc.description,
+                invoice.desc,
                 invoice.costs,
                 invoice.units,
+                invoice.rate,
                 invoice.settled,
                 invoice.sent_to_client,
                 invoice.additional_notes,
@@ -1488,8 +1536,7 @@ def download_monies_in_accountants_csv(request):
         moneyin_entries = MoneyIn.objects.filter(date__gte=date_from)
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="moneyin_from_{
-            date_from}.csv"'
+        response['Content-Disposition'] = f'attachment; filename="moneyin_from_{date_from}.csv"'
 
         writer = csv.writer(response)
         # Write header row
@@ -1523,8 +1570,7 @@ def download_creditnote_accountants_csv(request):
             timestamp__gte=date_from)
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="creditnotes_from_{
-            date_from}.csv"'
+        response['Content-Disposition'] = f'attachment; filename="creditnotes_from_{date_from}.csv"'
 
         writer = csv.writer(response)
         # Write header row

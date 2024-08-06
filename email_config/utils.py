@@ -69,8 +69,7 @@ class Graph:
         to_email = to_email
         
 
-        send_mail_endpoint = f"https://graph.microsoft.com/v1.0/users/{
-            self.from_email}/sendMail/"
+        send_mail_endpoint = f"https://graph.microsoft.com/v1.0/users/{self.from_email}/sendMail/"
 
         email_payload = {
             "message": {
@@ -92,7 +91,7 @@ class Graph:
                     }
                 }
             },
-            "saveToSentItems": "false"
+            "saveToSentItems": "true"
         }
         if pdf_content:
             email_payload["message"]["attachments"] = [{
