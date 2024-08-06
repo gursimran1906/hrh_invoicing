@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = False
 ALLOWED_HOSTS = ['*']
 CSRF_COOKIE_SECURE = True
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 ADMINS = [('Gursimran', 'gursimran1906@gmail.com')]
 

@@ -60,24 +60,7 @@
                 </tr>
             </thead>
             <tbody class="even:bg-white odd:dark:bg-gray-900 odd:bg-gray-50 divide-y divide-gray-200">
-                {% for client in clients %}
-                <tr class="">
-                    <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-gray-50 border-e">
-                        {{ client.name }}
-                    </td>
-                    
-                    {% for day, present in client.attendance.items %}
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <input name="{{ client.id }}/{{ day }}" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" type="checkbox" {% if present == True %}checked{% endif %}>
-                    </td>
-                    {% endfor %}
-                    
-                </tr>
-                {% endfor %}
-            </tbody>
-            
-            <tfoot class="bg-gray-50">
-                <tr>
+		<tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-gray-50 border-e">
                         SELECT FOR ALL
                     </td>
@@ -100,7 +83,22 @@
                     </script>
 
                 </tr>
-            </tfoot>
+                {% for client in clients %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-gray-50 border-e">
+                        {{ client.name }}
+                    </td>
+                    
+                    {% for day, present in client.attendance.items %}
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input name="{{ client.id }}/{{ day }}" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" type="checkbox" {% if present == True %}checked{% endif %}>
+                    </td>
+                    {% endfor %}
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+            
             
         </table>
     </div>

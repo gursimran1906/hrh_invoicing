@@ -53,7 +53,30 @@
     </table>
 </div>
 
+<script>
+   
 
+    function toggleMore(id) {
+        const moreButton = document.getElementById("more-button-"+id)
+        const fullText = document.getElementById("full-text-"+id);
+        const truncatedText = document.getElementById("truncated-text-"+id);
+
+        
+
+        if (moreButton.innerText == 'Show All') {
+            fullText.style.display = 'block';
+            truncatedText.style.display='none';
+            moreButton.innerText = "Show Less";
+            
+        } else {
+            fullText.style.display = 'none';
+            truncatedText.style.display='block';
+            moreButton.innerText = "Show All";
+        }
+    }
+       
+  
+</script>
 
     
 {% else%} 

@@ -66,7 +66,7 @@ class ContractDocument(models.Model):
 
     def __str__(self):
         return f'Contract Document for {self.client.name}'
-
+"""
     def save(self, *args, **kwargs):
         
         original_file_name = str(self.document)
@@ -77,7 +77,7 @@ class ContractDocument(models.Model):
         self.document.name = new_file_name
         
         super().save(*args, **kwargs)
-
+"""
 class OneToOneAgency(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -117,6 +117,7 @@ class Invoice(models.Model):
     date = models.DateField(default=date.today)
     desc = models.CharField(max_length=255, blank=True,null=True)
     costs = models.DecimalField(max_digits=10, decimal_places=2)
+    rate = models.DecimalField(max_digits=10,decimal_places=4)
     units = models.IntegerField(default=1)
     settled = models.BooleanField(default=False)
     sent_to_client = models.BooleanField(default=False)
