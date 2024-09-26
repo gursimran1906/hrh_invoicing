@@ -32,7 +32,7 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
         # Customize the success URL here
         return reverse_lazy('login')
 
-
+@login_required
 def register_user(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)

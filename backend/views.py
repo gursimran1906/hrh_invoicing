@@ -837,12 +837,12 @@ def clients_attendance(request):
         if (year, month) < (today.year, today.month):
             # For past months, allow all days
             days_in_month = calendar.monthrange(year, month)[1]
-            days_of_month = [date(year, month, day)
-                             for day in range(1, days_in_month + 1)]
+            days_of_month = [date(year, month, day).strftime("%d-%m-%Y")
+                            for day in range(1, days_in_month + 1)]
         elif (year, month) == (today.year, today.month):
             # For the current month, limit days to today
-            days_of_month = [date(today.year, today.month, day)
-                             for day in range(1, today.day+1)]
+            days_of_month = [date(today.year, today.month, day).strftime("%d-%m-%Y")
+                            for day in range(1, today.day + 1)]
         else:
             days_of_month = []
             # For future months, return an error message
@@ -875,11 +875,16 @@ def clients_attendance(request):
             client_data = {'id': client_id,
                            'name': client_name, 'attendance': {}}
 
-            for day in days_of_month:
+            for day_str in days_of_month:
+                day_date = datetime.strptime(day_str, "%d-%m-%Y").date()
+    
+                # Format the date object as 'YYYY-MM-DD'
+                day_formatted = day_date.strftime("%Y-%m-%d")
                 attendance_entry = attendances.filter(
-                    client__id=client_id, date=day).first()
+                    client__id=client_id, date=day_formatted).first()
+                
                 present = attendance_entry.present if attendance_entry else "N/A"
-                client_data['attendance'][day] = present
+                client_data['attendance'][day_str] = present
 
             attendance_data.append(client_data)
 
@@ -903,7 +908,7 @@ def mark_clients_attendance(request):
 
                 client = Client.objects.get(pk=client_id)
 
-                date_obj = datetime.strptime(raw_date, "%B %d, %Y").date()
+                date_obj = datetime.strptime(raw_date, "%d-%m-%Y").date()
 
                 present = value == 'on'
 
