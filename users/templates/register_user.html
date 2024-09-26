@@ -3,8 +3,10 @@
 {% block container %}
 
 
+
     <div class='p-3 pt-1' >
         <h3 class='pb-2 text-center '>Register New User</h3>
+
         <form method="post" class=''>
             {% csrf_token %}
             {{ form.as_p }}

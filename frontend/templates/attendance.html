@@ -41,7 +41,42 @@
 </div>
 {% endif %}
 </div>
-
+<script>
+    let changedFields = {};
+    
+    function trackChange(element) {
+        const name = element.name;
+        const value = element.checked ? 'on' : 'off';
+        changedFields[name] = value;
+    }
+    
+    function submitChangedAttendance() {
+        const formData = new FormData();
+        for (const [key, value] of Object.entries(changedFields)) {
+            formData.append(key, value);
+        }
+    
+        fetch("{% url 'mark_clients_attendance' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Attendance successfully marked.');
+                changedFields = {}; // Clear the tracked changes after successful submission
+            } else {
+                alert('An error occurred: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    </script>
 {% if days_of_month %}
 <form class="bg-white p-4 mt-2 rounded-lg shadow-md" method="post" action="{% url 'mark_clients_attendance' %}" >
     {% if clients %}
@@ -60,7 +95,9 @@
                 </tr>
             </thead>
             <tbody class="even:bg-white odd:dark:bg-gray-900 odd:bg-gray-50 divide-y divide-gray-200">
+
 		<tr class="hover:bg-gray-50">
+
                     <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-gray-50 border-e">
                         SELECT FOR ALL
                     </td>
@@ -84,14 +121,18 @@
 
                 </tr>
                 {% for client in clients %}
+
                 <tr class="hover:bg-gray-50">
+
                     <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-gray-50 border-e">
                         {{ client.name }}
                     </td>
                     
                     {% for day, present in client.attendance.items %}
                     <td class="px-6 py-4 whitespace-nowrap">
+
                         <input name="{{ client.id }}/{{ day }}" class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out" type="checkbox" {% if present == True %}checked{% endif %}>
+
                     </td>
                     {% endfor %}
                     

@@ -195,6 +195,7 @@ class InvoiceForm(forms.ModelForm):
         fields = ['client', 'date', 'desc',
                   'costs', 'units','rate', 'additional_notes']
 
+
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
 
@@ -247,4 +248,5 @@ class ContractDocumentForm(forms.ModelForm):
     class Meta:
         model = ContractDocument
         fields = ['document']
+
     document = forms.FileField(required=False)
