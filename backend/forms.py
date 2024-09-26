@@ -56,13 +56,11 @@ class ClientFullForm(forms.ModelForm):
                 RateFormSet = formset_factory(RateSubForm, extra=0)
                 
                 self.rates_formset = RateFormSet(initial=rates_dicts)
-
                 for idx, rate_data in enumerate(rates_dicts):
                     if rate_data.get('status') == 'inactive':
                         for field_name, field in self.rates_formset.forms[idx].fields.items():
                             value = self.rates_formset.forms[idx].initial.get(field_name, field.initial)
                             field.widget = forms.TextInput(attrs={'readonly': 'readonly'})
-                            
 
                           
         # if self.instance.pk:
@@ -195,7 +193,8 @@ class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
         fields = ['client', 'date', 'desc',
-                  'costs', 'units', 'rate','additional_notes']
+                  'costs', 'units','rate', 'additional_notes']
+
 
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),

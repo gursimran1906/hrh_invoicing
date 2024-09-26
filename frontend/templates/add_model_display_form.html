@@ -10,14 +10,15 @@
         <label class="block mb-1 text font-medium text-gray-900 dark:text-white" for="contract">Daily Rate:</label>
         <div class='flex'>
         <input placeholder='Description' name='daily_rate_desc' class="me-2 shadow-sm mb-2 mt-1 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-100 focus:border-blue-100 block w-50 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <input placeholder='Amount' name="daily_rate_amount" class=" shadow-sm mb-2 mt-1 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-100 focus:border-blue-100 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-        aria-describedby="contract_help" id="contract" type="number" step="0.0001">
-        </div>
 
-        {% comment %} <label class="mb-1 text font-medium text-gray-900 dark:text-white" for="contract">Upload Contract:</label>
+        <input placeholder='Amount' name="daily_rate_amount" class=" shadow-sm mb-2 mt-1 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-100 focus:border-blue-100 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" step=".0001"  aria-describedby="contract_help" id="contract" type="number">
+        </div>
+	{% comment %}
+        <label class="mb-1 text font-medium text-gray-900 dark:text-white" for="contract">Upload Contract:</label>
         <input name="contract_document" class=" w-full text-sm text-gray-900 border rounded border-gray-300 cursor-pointer bg-white dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="contract_help" id="contract" type="file">
         <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="contract_help">Contract signed and agreed with the authority or client.</div>
-       {% endcomment %}
+      {% endcomment %}
+
     {% endif %}
       <button type="submit" class="mt-2 text-center text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg border text-sm px-2 py-2 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-600 focus:outline-none dark:focus:ring-blue-800">Submit</button>
     </form>

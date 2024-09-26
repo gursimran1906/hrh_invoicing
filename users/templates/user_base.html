@@ -9,9 +9,13 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
     <style>
-      body {
+
+    
+	body {
+
         background-color: rgb(248 250 252);
       }
+      
       
     </style>
   </head>
@@ -40,8 +44,12 @@
                 </div>
             {% endif %}
         {% endblock %}
-        <div class='row d-flex align-items-center justify-content-center pt-5'>
+
+    
+    <div class='row d-flex align-items-center justify-content-center pt-5'>
             <div class=" col-md-3 {% url 'register_new_user' as url %} {% if request.path == url %}col-md-6 {% endif %} p-4  bg-white rounded shadow-sm">
+
+
                 {% block container %}
                 
                 {% endblock %}
