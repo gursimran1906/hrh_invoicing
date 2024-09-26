@@ -4,7 +4,7 @@ from .models import Client, LocalAuthority,  OneToOne, OneToOneAgency, Invoice, 
 import json
 
 class RateSubForm(forms.Form):
-    amount = forms.DecimalField(max_digits=10, decimal_places=2, required=False)
+    amount = forms.DecimalField(max_digits=10, decimal_places=4, required=False)
     description = forms.CharField(max_length=100, required=False)
     status = forms.ChoiceField(choices=[('active', 'Active'), ('inactive', 'Inactive')], required=False)
 
@@ -58,9 +58,11 @@ class ClientFullForm(forms.ModelForm):
                 self.rates_formset = RateFormSet(initial=rates_dicts)
 
                 for idx, rate_data in enumerate(rates_dicts):
-                        if rate_data.get('status') == 'inactive':
-                            for field_name in rate_data.keys():
-                                self.rates_formset.forms[idx].fields[field_name].disabled = True
+                    if rate_data.get('status') == 'inactive':
+                        for field_name, field in self.rates_formset.forms[idx].fields.items():
+                            value = self.rates_formset.forms[idx].initial.get(field_name, field.initial)
+                            field.widget = forms.TextInput(attrs={'readonly': 'readonly'})
+                            
 
                           
         # if self.instance.pk:
@@ -193,7 +195,7 @@ class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
         fields = ['client', 'date', 'desc',
-                  'costs', 'units', 'additional_notes']
+                  'costs', 'units', 'rate','additional_notes']
 
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
@@ -247,3 +249,5 @@ class ContractDocumentForm(forms.ModelForm):
     class Meta:
         model = ContractDocument
         fields = ['document']
+
+    document = forms.FileField(required=False)

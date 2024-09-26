@@ -31,12 +31,13 @@
               href="{% url 'index_dashboard' %}"
               class="flex items-center ms-2 md:me-24"
             >
+            
               <img
                 src="{% static 'images/logo.png' %}"
-                class="h-8 me-3 transform hover:rotate-180 hover:scale-120 transition-transform origin-center"
+                class="h-8 me-3 pr-3 transform hover:rotate-180 hover:scale-120 transition-transform origin-center"
                 alt="Softwarised Logo"
               />
-
+             <hr>
               <span
                 class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
                 >{{request.tenant.name|capfirst}}</span

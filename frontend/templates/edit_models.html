@@ -28,7 +28,7 @@
         const payableByLabel = document.querySelector("label[for='id_payable_by']");
         const payableByField = document.querySelector("#id_payable_by");
         const refNumLabel = document.querySelector("label[for='id_resident_name_number']");
-        const refNumField = document.querySelector("#id_resident_name_number");
+        const refNumField = document.querySelector("#id_resident_name_fnumber");
 
         clientTypeField.addEventListener("change", function() {
             if (this.value === "private_funded") {
@@ -68,7 +68,7 @@
           var amountInput = newForm.querySelector('input[name="form-' + formCount + '-amount"]');
           console.log(amountInput)
           var currentAmount = parseFloat(amountInput.value);
-          amountInput.value = (currentAmount * 1.10).toFixed(2);
+          amountInput.value = (currentAmount * 1.10).toFixed(4);
   
           // Set status as inactive in previous formset
           if (formCount > 0) {

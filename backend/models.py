@@ -72,7 +72,7 @@ class ContractDocument(models.Model):
         original_file_name = str(self.document)
         
         timestamp = timezone.now().strftime('%Y_%m_%d_%H%M%S')
-        new_file_name = f'{timestamp}_{original_file_name}'
+        new_file_name = f'{timestamp}'
         
         self.document.name = new_file_name
         
@@ -116,6 +116,7 @@ class Invoice(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
     date = models.DateField(default=date.today)
     desc = models.CharField(max_length=255, blank=True,null=True)
+    rate = models.DecimalField(max_digits=10,decimal_places=4)
     costs = models.DecimalField(max_digits=10, decimal_places=2)
     units = models.IntegerField(default=1)
     settled = models.BooleanField(default=False)
